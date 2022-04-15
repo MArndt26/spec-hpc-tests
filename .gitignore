@@ -1,0 +1,15 @@
+*.pyc
+m5out
+.vscode
+results
+envt
+disk-image/packer
+disk-image/prebuilt
+disk-image/packer_1.4.3_linux_amd64.zip
+disk-image/SPEChpc/spec-hpc-image/spec-hpc
+# TODO: CHANGE THIS AFTER WE GET WORKING CODE/BENCHMARK FORMAT
+disk-image/SPEChpc/SOMA
+disk-image/SPEChpc/TeaLeaf
+disk-image/packer_cache
+gem5
+resources
