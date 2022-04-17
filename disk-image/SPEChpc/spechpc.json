@@ -60,9 +60,8 @@
     },
     {
       "type": "file",
-      "source_EXAMPLE_DELETE": "SPEChpc/npb-hooks/NPB3.3.1/NPB3.3-OMP",
-      "source": "SPEChpc/TODO",
-      "destination": "/home/gem5/"
+      "source": "SPEChpc/TeaLeaf/2d",
+      "destination": "/home/gem5/spec-hpc/"
     },
     {
       "type": "shell",

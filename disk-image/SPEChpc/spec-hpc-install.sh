@@ -4,8 +4,13 @@
 
 echo "12345" | sudo apt-get install build-essential gfortran
 
-cd /home/gem5/NPB3.3-OMP/
+ls
+pwd
+cd /home/gem5/spec-hpc/
+ls
+pwd
 
-mkdir bin
-
-make suite HOOKS=1
+# mkdir bin
+make
+mkdir /home/gem5/spec-hpc/bin
+cp tealeaf.x /home/gem5/spec-hpc/bin/tealeaf.x

@@ -56,6 +56,7 @@ from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import
 )
 import argparse
 import time
+import os
 
 import m5
 from m5.objects import Root
@@ -85,6 +86,8 @@ requires(
 
 benchmark_choices = ["tealeaf"]
 
+core_choices = [1, 2, 4, 8, 16]
+
 # TODO: NEED TO ADD SIZES
 size_choices = ["base"]
 
@@ -100,6 +103,14 @@ parser.add_argument(
     required=True,
     help="Input the benchmark program to execute.",
     choices=benchmark_choices,
+)
+
+parser.add_argument(
+    "--cores",
+    type=int,
+    required=True,
+    help="Input the number of processor cores for benchmark execution",
+    choices=core_choices,
 )
 
 parser.add_argument(
@@ -150,7 +161,7 @@ memory = DualChannelDDR4_2400(size="3GB")
 processor = SimpleSwitchableProcessor(
     starting_core_type=CPUTypes.KVM,
     switch_core_type=CPUTypes.TIMING,
-    num_cores=2,
+    num_cores=args.cores,
 )
 
 # Here we setup the board. The X86Board allows for Full-System X86 simulations
@@ -176,7 +187,8 @@ board = X86Board(
 
 command = (
     # "/home/gem5/spec-hpc/bin/{}.{}.x;".format(args.benchmark, args.size) #TODO: ADD SIZE BACK
-    "/home/gem5/spec-hpc/bin/{}.x;".format(args.benchmark)
+    "uname -a;objdump -a /home/gem5/spec-hpc/tealeaf.x;"
+    + "bash /home/gem5/spec-hpc/{}.x;".format(args.benchmark)
     + "sleep 5;"
     + "m5 exit;"
 )
@@ -190,7 +202,8 @@ board.set_kernel_disk_workload(
     ),
     # The location of the x86 SPEC hpc 2021 image
     disk_image=CustomDiskImageResource(
-        local_path="disk-image/npb", disk_root_partition="1"),
+        local_path="disk-image/SPEChpc/spec-hpc-image/spec-hpc",
+        disk_root_partition="1"),
     readfile_contents=command,
 )
 
@@ -319,3 +332,8 @@ print(
     "Total wallclock time: %.2fs, %.2f min"
     % (time.time() - globalStart, (time.time() - globalStart) / 60)
 )
+
+print("copying m5out to archive")
+os.system("cp m5out/ archive/{}/cores_{}/size_{}".format(args.benchmark,
+          args.cores, args.size))
+print("run complete")
