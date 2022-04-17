@@ -187,8 +187,8 @@ board = X86Board(
 
 command = (
     # "/home/gem5/spec-hpc/bin/{}.{}.x;".format(args.benchmark, args.size) #TODO: ADD SIZE BACK
-    "uname -a;objdump -a /home/gem5/spec-hpc/tealeaf.x;"
-    + "/home/gem5/spec-hpc/{}.x;".format(args.benchmark)
+    "cd /home/gem5/2d; make clean; make;"
+    + "/home/gem5/2d/{}.x;".format(args.benchmark)
     + "sleep 5;"
     + "m5 exit;"
 )
@@ -202,7 +202,7 @@ board.set_kernel_disk_workload(
     ),
     # The location of the x86 SPEC hpc 2021 image
     disk_image=CustomDiskImageResource(
-        local_path="disk-image/SPEChpc/spec-hpc-image/spec-hpc",
+        local_path="disk-image/spec-hpc/spec-hpc-image/spec-hpc",
         disk_root_partition="1"),
     readfile_contents=command,
 )

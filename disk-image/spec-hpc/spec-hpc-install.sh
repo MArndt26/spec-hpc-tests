@@ -4,12 +4,7 @@
 
 echo "12345" | sudo apt-get install build-essential gfortran
 
-ls
-pwd
 cd /home/gem5/2d/
-ls
-pwd
 
-mkdir bin
-
+# FIXME: this causes illegal instructions for some reason, make clean and make again before each run
 make
