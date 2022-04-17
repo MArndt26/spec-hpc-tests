@@ -29,7 +29,7 @@
       "iso_checksum_type": "{{ user `iso_checksum_type` }}",
       "iso_urls": ["{{ user `iso_url` }}"],
       "memory": "{{ user `vm_memory`}}",
-      "output_directory": "SPEChpc/{{ user `image_name` }}-image",
+      "output_directory": "spec-hpc/{{ user `image_name` }}-image",
       "qemuargs": [
         ["-cpu", "host"],
         ["-display", "none"]
@@ -55,18 +55,21 @@
     },
     {
       "type": "file",
-      "source": "SPEChpc/runscript.sh",
+      "source": "spec-hpc/runscript.sh",
       "destination": "/home/gem5/"
     },
     {
       "type": "file",
-      "source": "SPEChpc/TeaLeaf/2d",
-      "destination": "/home/gem5/spec-hpc/"
+      "source": "spec-hpc/TeaLeaf/2d",
+      "destination": "/home/gem5/"
     },
     {
       "type": "shell",
       "execute_command": "echo '{{ user `ssh_password` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
-      "scripts": ["SPEChpc/post-installation.sh", "SPEChpc/spec-hpc-install.sh"]
+      "scripts": [
+        "spec-hpc/post-installation.sh",
+        "spec-hpc/spec-hpc-install.sh"
+      ]
     }
   ],
   "variables": {

@@ -1,16 +1,15 @@
 # install build-essential (gcc and g++ included) and gfortran
 
-#Compile NPB
+#Compile SPEC hpc benchmark
 
 echo "12345" | sudo apt-get install build-essential gfortran
 
 ls
 pwd
-cd /home/gem5/spec-hpc/
+cd /home/gem5/2d/
 ls
 pwd
 
-# mkdir bin
+mkdir bin
+
 make
-mkdir /home/gem5/spec-hpc/bin
-cp tealeaf.x /home/gem5/spec-hpc/bin/tealeaf.x

@@ -188,7 +188,7 @@ board = X86Board(
 command = (
     # "/home/gem5/spec-hpc/bin/{}.{}.x;".format(args.benchmark, args.size) #TODO: ADD SIZE BACK
     "uname -a;objdump -a /home/gem5/spec-hpc/tealeaf.x;"
-    + "bash /home/gem5/spec-hpc/{}.x;".format(args.benchmark)
+    + "/home/gem5/spec-hpc/{}.x;".format(args.benchmark)
     + "sleep 5;"
     + "m5 exit;"
 )
