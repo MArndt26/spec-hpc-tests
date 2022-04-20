@@ -286,13 +286,14 @@ elif (
     m5.stats.dump()
     end_tick = m5.curTick()
 else:
-    print("Unexpected termination of simulation while ROI was being executed!")
-    print(
-        "Exiting @ tick {} because {}.".format(
-            m5.curTick(), exit_event.getCause()
-        )
-    )
-    exit(-1)
+    m5.stats.dump()
+    # print("Unexpected termination of simulation while ROI was being executed!")
+    # print(
+    #     "Exiting @ tick {} because {}.".format(
+    #         m5.curTick(), exit_event.getCause()
+    #     )
+    # )
+    # exit(-1)
 
 # We need to note that the benchmark is not executed completely till this
 # point, but, the ROI has. We collect the essential statistics here before
