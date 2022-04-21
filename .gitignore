@@ -6,7 +6,7 @@ envt
 disk-image/packer
 disk-image/prebuilt
 disk-image/packer_1.4.3_linux_amd64.zip
-disk-image/spec-hpc/spec-hpc-image/spec-hpc
+disk-image/spec-hpc/spec-hpc-image
 # TODO: CHANGE THIS AFTER WE GET WORKING CODE/BENCHMARK FORMAT
 disk-image/spec-hpc/SOMA
 disk-image/spec-hpc/TeaLeaf
@@ -14,5 +14,4 @@ disk-image/packer_cache
 gem5
 resources
 rem5-resouces
-**npb
-disk-image/hpc
+spec_hpc_2021

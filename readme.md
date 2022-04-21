@@ -1,15 +1,51 @@
 ## Setup
-1) Obtain copy of hpc2021-1.0.3.iso.xz (or newer version) from SPEC
+1) clone gem5 repo: `git clone /home/yara/mithuna2/gem5`
+2) build gem5:
+   1) `cd gem5`
+   2) `scons-3 USE_HDF5=0 build/X86/gem5.opt -j 16`
+3) Obtain copy of hpc2021-1.0.3.iso.xz (or newer version) from SPEC
    1) Note: this follows [this](https://www.spec.org/hpg/hpc2021/Docs/install-guide-linux.html#mount) tutorial for installation
-2) Copy compressed file into disk-image/hpc/
-3) Decompress `xz -d hpc2021-1.0.3.iso.xz`
-4) mount to the extracted .iso `mount -t iso9660 -o ro,loop hpc2021-1.0.n.iso /mnt`
-5) change to the mount directory `cd /mnt`
-6) `./install.sh`
+4) Copy compressed file into disk-image/hpc/
+5) Decompress `xz -d hpc2021-1.0.3.iso.xz`
+6) mount to the extracted .iso `mount -t iso9660 -o ro,loop hpc2021-1.0.n.iso /mnt`
+7) change to the mount directory `cd /mnt`
+8)  `./install.sh`
    1) you will be prompted for the install directory: enter /path/to/
-7) Change to the top-level spec directory `cd /spec-hpc-tests/disk-image/hpc`
-8) source the env vars `. ./shrc` -> note dot-space-dot-slash-shrc
-9) unmount the .iso `sudo umount /mnt` -> note: `u`mount is not a typo for `un`mount
+9)  Change to the top-level spec directory `cd /spec-hpc-tests/disk-image/hpc`
+10) source the env vars `. ./shrc` -> note dot-space-dot-slash-shrc
+11) unmount the .iso `sudo umount /mnt` -> note: `u`mount is not a typo for `un`mount
+
+## Mounting Spec Image
+1) To mount a partition inside the disk image you need to calculate the offset of where the partition starts.
+   1) `cd spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image`
+   2) `parted spec-hpc`
+      1) `unit`
+      2) `B`
+      3) `print`
+      4) `q` to exit parted menu
+   
+The output should look like:
+```bash
+bash$ parted spec-hpc
+GNU Parted 2.3
+Using picked.img
+Welcome to GNU Parted! Type 'help' to view a list of commands.
+(parted) unit
+Unit? [compact]? B
+(parted) print
+Model:  (file)
+Disk /home/shay/a/arndt20/ece666/spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image/spec-hpc: 31457280000B
+Sector size (logical/physical): 512B/512B
+Partition Table: msdos
+Disk Flags: 
+
+Number  Start     End           Size          Type     File system  Flags
+1      1048576B  31456231423B  31455182848B  primary  ext4         boot
+```
+2) Next create a folder where you can mount the drive
+   1) `mkdir spec-mnt`
+3) mount drive to the partition given from parted
+   1) `sudo mount -o loop,offset=1048576 spec-hpc spec-mnt`
 
 ## Running SPEC tests
 1) cd $SPEC/config

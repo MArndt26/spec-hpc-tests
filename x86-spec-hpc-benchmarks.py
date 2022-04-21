@@ -161,7 +161,7 @@ memory = DualChannelDDR4_2400(size="3GB")
 processor = SimpleSwitchableProcessor(
     starting_core_type=CPUTypes.KVM,
     switch_core_type=CPUTypes.TIMING,
-    num_cores=args.cores,
+    num_cores=args.cores, #TODO: DO WE WANT THIS CONSTANT BUT CHANGE NUMBER OF THREADS USED IN SOFTWARE?
 )
 
 # Here we setup the board. The X86Board allows for Full-System X86 simulations
@@ -187,8 +187,10 @@ board = X86Board(
 
 command = (
     # "/home/gem5/spec-hpc/bin/{}.{}.x;".format(args.benchmark, args.size) #TODO: ADD SIZE BACK
-    "cd /home/gem5/2d; make clean; make;"
-    + "/home/gem5/2d/{}.x;".format(args.benchmark)
+    "echo 'Starting Test Run';"
+    + "cd /home/gem5/spec_hpc_2021/config;"
+    # + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks=5 tiny;" #TODO: add params to run here
+    + "echo 'Finished with Tests';"
     + "sleep 5;"
     + "m5 exit;"
 )
