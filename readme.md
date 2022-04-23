@@ -146,7 +146,8 @@ useful for creating a shell that will persist when a ssh session is closed
 - `lsblk` to list all devices mounted
 
 ## Resources
-- https://www.spec.org/hpg/hpc2021/Docs/quick-start.html
+- [spec hpc quick start](https://www.spec.org/hpg/hpc2021/Docs/quick-start.html)
+- [m5 simulation commands](https://www.gem5.org/documentation/general_docs/m5ops/)
 
 
 ## I think I may have found the bug.

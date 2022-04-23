@@ -186,13 +186,15 @@ board = X86Board(
 # properly.
 
 command = (
-    # "/home/gem5/spec-hpc/bin/{}.{}.x;".format(args.benchmark, args.size) #TODO: ADD SIZE BACK
     "echo 'Starting Test Run';"
+    + "sleep 5; m5 exit;" # switch processors
+    + "echo 'Running on Timing CPU';"
+    + "cd /home/gem5/spec_hpc_2021;"
+    + ". ./shrc;"
     + "cd /home/gem5/spec_hpc_2021/config;"
-    # + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks=5 tiny;" #TODO: add params to run here
-    + "echo 'Finished with Tests';"
-    + "sleep 5;"
-    + "m5 exit;"
+    # + "runhpc --help; sleep 5;"
+    + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks=5 -v 10 tiny;" #TODO: add params to run here
+    + "m5 exit;" # dump stats
 )
 
 board.set_kernel_disk_workload(
@@ -234,7 +236,7 @@ exit_event = m5.simulate()
 # The first exit_event ends with a `workbegin` cause. This means that the
 # system started successfully and the execution on the program started.
 
-if exit_event.getCause() == "workbegin":
+if exit_event.getCause() == "m5_exit instruction encountered":
 
     print("Done booting Linux")
     print("Resetting stats at the start of ROI!")
@@ -274,7 +276,7 @@ else:
 
 # We exepect that ROI ends with `workend` or `simulate() limit reached`.
 # Otherwise the simulation ended unexpectedly.
-if exit_event.getCause() == "workend":
+if exit_event.getCause() == "m5_exit instruction encountered":
     print("Dump stats at the end of the ROI!")
 
     m5.stats.dump()
@@ -288,14 +290,13 @@ elif (
     m5.stats.dump()
     end_tick = m5.curTick()
 else:
-    m5.stats.dump()
-    # print("Unexpected termination of simulation while ROI was being executed!")
-    # print(
-    #     "Exiting @ tick {} because {}.".format(
-    #         m5.curTick(), exit_event.getCause()
-    #     )
-    # )
-    # exit(-1)
+    print("Unexpected termination of simulation while ROI was being executed!")
+    print(
+        "Exiting @ tick {} because {}.".format(
+            m5.curTick(), exit_event.getCause()
+        )
+    )
+    exit(-1)
 
 # We need to note that the benchmark is not executed completely till this
 # point, but, the ROI has. We collect the essential statistics here before
@@ -303,7 +304,6 @@ else:
 
 # We get simInsts using get_simstat and output it in the final
 # print statement.
-
 gem5stats = get_simstat(root)
 
 # We get the number of committed instructions from the timing
