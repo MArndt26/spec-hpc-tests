@@ -120,6 +120,23 @@ cat gem5/m5out/board.pc.com_1.device | less +G
   - L2Cache_Controller.Mem_Data::total
   - L2Cache_Controller.WB_Data_clean::total --> wb
 
+## Runs Required
+- foreach benchmark in benchmarks
+  - foreach cpu in 16, 8, 4, 2, 1
+    - gives us parallel speedup
+    - can we run a serial version of this benchmark for parallelization overhead?
+    - gives us traffic from cache (bytes/instr)
+    - gives us off chip traffic (bytes/instr)
+  - for cpu is 16
+    - foreach cache size in 8, 16, 32, 64, 128, 256
+      - gives us miss rate analysis
+      - and shared lines analysis
+- *Impossible* scope
+  - foreach benchmark in benchmarks
+    - for cpu is 16
+      - foreach cache size in 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144
+        - get miss rates to determine working sets
+
 ## Tmux
 useful for creating a shell that will persist when a ssh session is closed
 

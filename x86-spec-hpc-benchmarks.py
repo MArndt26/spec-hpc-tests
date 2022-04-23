@@ -193,7 +193,7 @@ command = (
     + "cd /home/gem5/spec_hpc_2021;"
     + ". ./shrc;"
     + "cd /home/gem5/spec_hpc_2021/config;"
-    + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks={cores} --threads={cores} {b_tag}{benchmark}_{size};".format(cores=args.cores, benchmark=args.benchmark, size=args.size, b_tag=size_map[args.size])
+    + "runhpc -c nv.cfg --noreportable -T base --define model=mpi --ranks={cores} --threads={cores} {b_tag}{benchmark}_{size};".format(cores=args.cores, benchmark=args.benchmark, size=args.size, b_tag=size_map[args.size])
     + "m5 exit;" # dump stats
 )
 
