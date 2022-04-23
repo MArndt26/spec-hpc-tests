@@ -84,12 +84,13 @@ requires(
 
 # Following are the list of benchmark programs for spec hpc.
 
-benchmark_choices = ["tealeaf"]
+benchmark_choices = ["05.lbm", "13.soma", "18.tealeaf", "19.clvleaf", "21.miniswp", "28.pot3d", "32.sph_exa", "34.hpgmgfv", "35.weather"]
 
 core_choices = [1, 2, 4, 8, 16]
 
-# TODO: NEED TO ADD SIZES
-size_choices = ["base"]
+# TODO: Can we test more sizes?
+size_choices = ["t", "s"]  #["t", "s", "m", "l"]
+size_map = {"t": "5", "s": "6"}
 
 parser = argparse.ArgumentParser(
     description="An example configuration script to run the npb benchmarks."
@@ -117,8 +118,8 @@ parser.add_argument(
     "--size",
     type=str,
     default="base",
-    # required=True, #TODO: ADD THIS BACK?
-    help="Input the class of the program to simulate.",
+    required=True,
+    help="Input the size of the program to simulate.",
     choices=size_choices,
 )
 
@@ -192,8 +193,7 @@ command = (
     + "cd /home/gem5/spec_hpc_2021;"
     + ". ./shrc;"
     + "cd /home/gem5/spec_hpc_2021/config;"
-    # + "runhpc --help; sleep 5;"
-    + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks=5 -v 10 tiny;" #TODO: add params to run here
+    + "runhpc -c nv.cfg --reportable -T base --define model=mpi --ranks={cores} --threads={cores} {b_tag}{benchmark}_{size};".format(cores=args.cores, benchmark=args.benchmark, size=args.size, b_tag=size_map[args.size])
     + "m5 exit;" # dump stats
 )
 
@@ -304,20 +304,20 @@ else:
 
 # We get simInsts using get_simstat and output it in the final
 # print statement.
-gem5stats = get_simstat(root)
+# gem5stats = get_simstat(root)
 
-# We get the number of committed instructions from the timing
-# cores. We then sum and print them at the end.
+# # We get the number of committed instructions from the timing
+# # cores. We then sum and print them at the end.
 
-roi_insts = float(
-    gem5stats.to_json()["system"]["processor"]["cores2"]["core"][
-        "exec_context.thread_0"
-    ]["numInsts"]["value"]
-) + float(
-    gem5stats.to_json()["system"]["processor"]["cores3"]["core"][
-        "exec_context.thread_0"
-    ]["numInsts"]["value"]
-)
+# roi_insts = float(
+#     gem5stats.to_json()["system"]["processor"]["cores2"]["core"][
+#         "exec_context.thread_0"
+#     ]["numInsts"]["value"]
+# ) + float(
+#     gem5stats.to_json()["system"]["processor"]["cores3"]["core"][
+#         "exec_context.thread_0"
+#     ]["numInsts"]["value"]
+# )
 
 # Simulation is over at this point. We acknowledge that all the simulation
 # events were successful.
@@ -329,14 +329,18 @@ print()
 print("Performance statistics:")
 
 print("Simulated time in ROI: %.2fs" % ((end_tick - start_tick) / 1e12))
-print("Instructions executed in ROI: %d" % ((roi_insts)))
+# print("Instructions executed in ROI: %d" % ((roi_insts)))
 print("Ran a total of", m5.curTick() / 1e12, "simulated seconds")
 print(
     "Total wallclock time: %.2fs, %.2f min"
     % (time.time() - globalStart, (time.time() - globalStart) / 60)
 )
 
+if not os.path.exists("archive"):
+    print("archive folder not found: creating archive/")
+    os.system("mkdir archive")
+
 print("copying m5out to archive")
-os.system("cp m5out/ archive/{}/cores_{}/size_{}".format(args.benchmark,
-          args.cores, args.size))
+os.system("cp -r m5out archive/{}{}_{}_p{}".format(size_map[args.size], args.benchmark,
+          args.size, args.cores))
 print("run complete")
