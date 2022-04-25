@@ -2,9 +2,8 @@ ifndef CORES
 $(error CORES is not set)
 endif
 
-export PATH=/home/mpich-install/bin:$(PATH)
-export PATH=/home/PnetCDF/bin:$(PATH)
-export LD_LIBRARY_PATH=/home/mpich-install/lib:$(LD_LIBRARY_PATH)
+export PATH=/home/mpich-install/bin:/home/PnetCDF/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games
+export LD_LIBRARY_PATH=/home/mpich-install/lib
 
 all:
 	@echo "No Test Selected"

@@ -2,7 +2,7 @@
 
 trap "exit" INT
 
-b=cloverleaf
+b=miniweather
 
 # run system configuration
 addtag() {
@@ -13,7 +13,6 @@ addtag() {
 
 mkdir archive
 
-# for cpu in 1
 for cpu in 1 2 4 8
 do
     echo "Starting run with benchmark: $b, cpu: $cpu" | addtag

@@ -173,7 +173,7 @@ command = (
     # + "export PATH=\"/home/PnetCDF/bin:$PATH\";"  # added new for miniWeather
     # + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
     # + "mpicc --version;"
-    + "echo $PATH;"
+    # + "echo $PATH;"
     # + "echo $LD_LIBRARY_PATH;"
     + "make {}_build CORES={};".format(args.benchmark, args.cores)
     + "m5 exit;"  # switch from kvm to timing processor
