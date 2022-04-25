@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import argparse
 import scripts.cloverleaf as cloverleaf
 
@@ -16,7 +16,7 @@ parser.add_argument(
     choices=benchmark_choices,
 )
 
-core_choices = [1, 2, 4, 8, 16]
+core_choices = [1, 2, 4, 8]
 
 parser.add_argument(
     "--cores",

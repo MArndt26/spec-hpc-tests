@@ -60,8 +60,13 @@
     },
     {
       "type": "file",
-      "source": "spec-hpc/TeaLeaf/2d",
+      "source": "spec-hpc/spec_hpc_2021",
       "destination": "/home/gem5/"
+    },
+    {
+      "type": "file",
+      "source": "spec-hpc/mpich-install",
+      "destination": "/home/"
     },
     {
       "type": "shell",
