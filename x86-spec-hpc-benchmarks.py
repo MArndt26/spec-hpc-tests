@@ -32,7 +32,7 @@
 """
 Script to run SPEC hpc 2021 benchmarks with gem5. The script expects the
 benchmark program to run. The input is in the format
-<benchmark_prog>.<class>.x .The system is fixed with 2 CPU cores, MESI
+<benchmark_prog>.<class>.x .The system is fixed with 8 CPU cores, MESI
 Two Level system cache and 3 GB DDR4 memory. It uses the x86 board.
 
 This script will count the total number of instructions executed
@@ -42,14 +42,10 @@ Usage:
 ------
 
 ```
-scons build/X86/gem5.opt
 ./gem5/build/X86/gem5.opt \
-    spec-hpc-run.py \
-    --benchmark <benchmark_name> \
-    --size <benchmark_class>
+    x86-spec-hpc-benchmarks-from-src.py --command {command}
 ```
 """
-# TODO: UPDATE THE USAGE ABOVE
 
 from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import (
     MESITwoLevelCacheHierarchy,
@@ -82,22 +78,13 @@ requires(
     kvm_required=True,
 )
 
-# Following are the list of benchmark programs for spec hpc.
-
-benchmark_choices = ["05.lbm", "13.soma", "18.tealeaf", "19.clvleaf",
-                     "21.miniswp", "28.pot3d", "32.sph_exa", "34.hpgmgfv", "35.weather"]
-
-core_choices = [1, 2, 4, 8, 16]
-
-# TODO: Can we test more sizes?
-size_choices = ["t", "s"]  # ["t", "s", "m", "l"]
-size_map = {"t": "5", "s": "6"}
-
 parser = argparse.ArgumentParser(
     description="An example configuration script to run the npb benchmarks."
 )
 
 # The only positional argument accepted is the benchmark name in this script.
+
+benchmark_choices = ["cloverleaf", "miniweather"]
 
 parser.add_argument(
     "--benchmark",
@@ -107,21 +94,14 @@ parser.add_argument(
     choices=benchmark_choices,
 )
 
+core_choices = [1, 2, 4, 8]
+
 parser.add_argument(
     "--cores",
     type=int,
     required=True,
-    help="Input the number of processor cores for benchmark execution",
+    help="Input the number of processes to execute with",
     choices=core_choices,
-)
-
-parser.add_argument(
-    "--size",
-    type=str,
-    default="base",
-    required=True,
-    help="Input the size of the program to simulate.",
-    choices=size_choices,
 )
 
 parser.add_argument(
@@ -137,7 +117,6 @@ args = parser.parse_args()
 
 # Setting up all the fixed system parameters here
 # Caches: MESI Two Level Cache Hierarchy
-
 
 cache_hierarchy = MESITwoLevelCacheHierarchy(
     l1d_size="32kB",
@@ -162,9 +141,8 @@ memory = DualChannelDDR4_2400(size="3GB")
 
 processor = SimpleSwitchableProcessor(
     starting_core_type=CPUTypes.KVM,
-    switch_core_type=CPUTypes.KVM,  # FIXME: CHANGE THIS BACK TO TIMING
-    # TODO: DO WE WANT THIS CONSTANT BUT CHANGE NUMBER OF THREADS USED IN SOFTWARE?
-    num_cores=args.cores,
+    switch_core_type=CPUTypes.TIMING,
+    num_cores=8,
 )
 
 # Here we setup the board. The X86Board allows for Full-System X86 simulations
@@ -190,18 +168,17 @@ board = X86Board(
 
 command = (
     "echo 'Starting Test Run';"
-    + "cd /home/gem5/spec_hpc_2021;"
-    + ". ./shrc;"
-    + "cd /home/gem5/spec_hpc_2021/config;"
-    + "export PATH=\"/home/mpich-install/bin:$PATH\";"
-    + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
-    + "mpicc --version;"
-    + "mpirun --version;"
-    + "mpic++ --version;"
+    + "cd /home/gem5/tests;"
+    # + "export PATH=\"/home/mpich-install/bin:$PATH\";"
+    # + "export PATH=\"/home/PnetCDF/bin:$PATH\";"  # added new for miniWeather
+    # + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
+    # + "mpicc --version;"
+    + "echo $PATH;"
+    # + "echo $LD_LIBRARY_PATH;"
+    + "make {}_build CORES={};".format(args.benchmark, args.cores)
     + "m5 exit;"  # switch from kvm to timing processor
-    + "runhpc -c nv.cfg --noreportable -T base --define model=mpi --ranks={cores} --threads={cores} {b_tag}{benchmark}_{size};".format(
-        cores=args.cores, benchmark=args.benchmark, size=args.size, b_tag=size_map[args.size])
-    + "m5 exit;"  # dump stats
+    + "make {}_run CORES={};".format(args.benchmark, args.cores)
+    + "sleep 2; m5 exit;"  # dump stats
 )
 
 board.set_kernel_disk_workload(
@@ -213,7 +190,7 @@ board.set_kernel_disk_workload(
     ),
     # The location of the x86 SPEC hpc 2021 image
     disk_image=CustomDiskImageResource(
-        local_path="disk-image/spec-hpc/spec-hpc-image/spec-hpc",
+        local_path="disk-image/from-src/from-src-image/image",
         disk_root_partition="1"),
     readfile_contents=command,
 )
@@ -305,27 +282,6 @@ else:
     )
     exit(-1)
 
-# We need to note that the benchmark is not executed completely till this
-# point, but, the ROI has. We collect the essential statistics here before
-# resuming the simulation again.
-
-# We get simInsts using get_simstat and output it in the final
-# print statement.
-# gem5stats = get_simstat(root)
-
-# # We get the number of committed instructions from the timing
-# # cores. We then sum and print them at the end.
-
-# roi_insts = float(
-#     gem5stats.to_json()["system"]["processor"]["cores2"]["core"][
-#         "exec_context.thread_0"
-#     ]["numInsts"]["value"]
-# ) + float(
-#     gem5stats.to_json()["system"]["processor"]["cores3"]["core"][
-#         "exec_context.thread_0"
-#     ]["numInsts"]["value"]
-# )
-
 # Simulation is over at this point. We acknowledge that all the simulation
 # events were successful.
 print("All simulation events were successful.")
@@ -342,12 +298,3 @@ print(
     "Total wallclock time: %.2fs, %.2f min"
     % (time.time() - globalStart, (time.time() - globalStart) / 60)
 )
-
-if not os.path.exists("archive"):
-    print("archive folder not found: creating archive/")
-    os.system("mkdir archive")
-
-print("copying m5out to archive")
-os.system("cp -r m5out archive/{}{}_{}_p{}".format(size_map[args.size], args.benchmark,
-          args.size, args.cores))
-print("run complete")

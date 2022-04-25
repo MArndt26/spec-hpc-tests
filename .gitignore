@@ -20,5 +20,6 @@ archive**
 transcript*.log
 disk-image/hpc
 disk-image/from-src/tests/CloverLeaf_MPI
+disk-image/from-src/tests/miniWeather_MPI
 disk-image/from-src/from-src-image
 disk-image/from-src/scripts/*.pc
