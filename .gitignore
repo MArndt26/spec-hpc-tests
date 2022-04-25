@@ -1,5 +1,5 @@
 *.pyc
-m5out
+m5out*
 .vscode
 results
 envt
@@ -16,8 +16,8 @@ gem5**
 resources
 rem5-resouces
 spec_hpc_2021
-archive
-transcript.log
+archive**
+transcript*.log
 disk-image/hpc
 disk-image/from-src/tests/CloverLeaf_MPI
 disk-image/from-src/from-src-image

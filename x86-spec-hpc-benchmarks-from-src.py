@@ -141,7 +141,7 @@ memory = DualChannelDDR4_2400(size="3GB")
 
 processor = SimpleSwitchableProcessor(
     starting_core_type=CPUTypes.KVM,
-    switch_core_type=CPUTypes.KVM,  # FIXME: CHANGE THIS BACK TO TIMING
+    switch_core_type=CPUTypes.TIMING,
     num_cores=8,
 )
 
@@ -275,27 +275,6 @@ else:
     )
     exit(-1)
 
-# We need to note that the benchmark is not executed completely till this
-# point, but, the ROI has. We collect the essential statistics here before
-# resuming the simulation again.
-
-# We get simInsts using get_simstat and output it in the final
-# print statement.
-# gem5stats = get_simstat(root)
-
-# # We get the number of committed instructions from the timing
-# # cores. We then sum and print them at the end.
-
-# roi_insts = float(
-#     gem5stats.to_json()["system"]["processor"]["cores2"]["core"][
-#         "exec_context.thread_0"
-#     ]["numInsts"]["value"]
-# ) + float(
-#     gem5stats.to_json()["system"]["processor"]["cores3"]["core"][
-#         "exec_context.thread_0"
-#     ]["numInsts"]["value"]
-# )
-
 # Simulation is over at this point. We acknowledge that all the simulation
 # events were successful.
 print("All simulation events were successful.")
@@ -313,11 +292,10 @@ print(
     % (time.time() - globalStart, (time.time() - globalStart) / 60)
 )
 
-if not os.path.exists("archive"):
+if not os.path.exists("archive-from-src"):
     print("archive folder not found: creating archive/")
-    os.system("mkdir archive")
+    os.system("mkdir archive-from-src")
 
 print("copying m5out to archive")
-os.system("cp -r m5out archive/{}{}_{}_p{}".format(size_map[args.size], args.benchmark,
-          args.size, args.cores))
+os.system("cp -r m5out archive-from-src/{}_p{}".format(args.benchmark, args.cores))
 print("run complete")
