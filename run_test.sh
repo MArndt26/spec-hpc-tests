@@ -2,7 +2,7 @@
 
 trap "exit" INT
 
-b=miniweather
+b=cloverleaf
 
 # run system configuration
 addtag() {

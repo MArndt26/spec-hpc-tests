@@ -174,3 +174,16 @@ The last line in `/home/gem5project/spec-hpc-tests/m5out/system.pc.com_1.device`
 
 
 ## uncomment in line 178 x86-spec-hpc-benchmarks.py, the simulation runs.
+
+## Install MPICH 
+
+`wget https://www.mpich.org/static/downloads/3.4.1/mpich-3.4.1.tar.gz`
+`gunzip mpich-3.4.1.tar.gz`
+`tar xf mpich-3.4.1.tar`
+`cd mpich-3.4.1`
+`./configure --prefix=/home/<USERNAME>/mpich-install 2>&1 --with-device=ch3 | tee c.txt`
+`make 2>&1 | tee m.txt`
+`make install 2>&1 | tee mi.txt`
+`PATH=/home/<USERNAME>/mpich-install/bin:$PATH ; export PATH`
+`which mpicc`
+`which mpiexec`

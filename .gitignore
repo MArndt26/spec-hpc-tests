@@ -23,3 +23,4 @@ disk-image/from-src/tests/CloverLeaf_MPI
 disk-image/from-src/tests/miniWeather_MPI
 disk-image/from-src/from-src-image
 disk-image/from-src/scripts/*.pc
+disk-image/from-src/mpich*

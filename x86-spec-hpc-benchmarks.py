@@ -169,14 +169,16 @@ board = X86Board(
 command = (
     "echo 'Starting Test Run';"
     + "cd /home/gem5/tests;"
-    # + "export PATH=\"/home/mpich-install/bin:$PATH\";"
-    # + "export PATH=\"/home/PnetCDF/bin:$PATH\";"  # added new for miniWeather
-    # + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
-    # + "mpicc --version;"
-    # + "echo $PATH;"
-    # + "echo $LD_LIBRARY_PATH;"
+    + "export PATH=\"/home/mpich-install/bin:$PATH\";"
+    + "export PATH=\"/home/PnetCDF/bin:$PATH\";"  # added new for miniWeather
+    + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
+    + "mpicc --version;"
+    + "mpirun --version;"
+    + "echo $PATH;"
+    + "echo $LD_LIBRARY_PATH;"
     + "make {}_build CORES={};".format(args.benchmark, args.cores)
     + "m5 exit;"  # switch from kvm to timing processor
+    + "cd CloverLeaf_MPI; mpirun -np {} ./clover_leaf;".format(args.cores)
     + "make {}_run CORES={};".format(args.benchmark, args.cores)
     + "sleep 2; m5 exit;"  # dump stats
 )

@@ -44,5 +44,5 @@ def parse(filename):
 
 
 if __name__ == "__main__":
-    test = parse("archive/cloverleaf-p1/stats.txt")
+    test = parse("archive/cloverleaf-p1-lock/stats.txt")
     dprint(test)
