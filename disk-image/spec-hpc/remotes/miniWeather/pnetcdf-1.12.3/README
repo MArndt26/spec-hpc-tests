@@ -1,0 +1,97 @@
+
+PnetCDF is a high-performance parallel I/O library for accessing Unidata's
+NetCDF files in classic formats, specifically the CDF 1, 2, and 5 formats.
+Although NetCDF supports parallel I/O starting from version 4, it is built on
+top of HDF5 and thus its parallel feature requires files in HDF5 format.
+PnetCDF is currently the only option for performing parallel I/O on files in
+classic formats.
+
+Starting from version 1.1.0, PnetCDF supports the CDF-5 file format, an
+extension of CDF-2, that supports more atomic data types and allows users to
+define large dimensions, attributes, and variables (>2B array elements).
+
+NetCDF gives scientific programmers a space-efficient and portable means for
+storing data. By making some small changes to the NetCDF APIs, PnetCDF can use
+MPI-IO to achieve high-performance parallel I/O.
+
+More extensive installation guides can be found in file INSTALL. Additional
+information regarding the contents of the release can be found in the
+RELEASE_NOTES file in the top-level directory. Finally, the PnetCDF project web
+sites below contain information on bug fixes and software releases.
+    https://parallel-netcdf.github.io
+
+The previous project web page is now retired and has been migrated to Github.
+http://trac.mcs.anl.gov/projects/parallel-netcdf
+
+
+Requirements:
+    - PnetCDF relies on MPI-IO.  ROMIO, the most common MPI-IO implementation,
+      can make use of a prefix in front of the file name to specify the
+      underlying file system and override ROMIO's auto detection. A typical
+      prefix would look like "nfs:" or "pvfs2:".  Bear this in mind if you use
+      a file name with ':' characters.  In some cases, ROMIO might think you
+      are passing in a prefix and will complain about an unsupported file
+      system type.  If that happens, add a file-system prefix to your file
+      name.
+    - To build PnetCDF, you will need the following additional programs:
+        - autotools (autoconfig, automake, libtool, m4, etc.)
+        - Optional: (for PnetCDF developers)
+             - either yacc or bison
+             - either lex or flex
+      These are usually part of your operating system's development tools.
+    - To build PnetCDF with NetCDF-4 feature, you will need the following
+      additional libraries:
+        - NetCDF-4: https://github.com/Unidata/netcdf-c
+        - HDF5: https://portal.hdfgroup.org/display/support
+
+
+Build recipes:
+    The process of building and installation of PnetCDF library is usually
+    simple: by just running commands "./configure", "make", and "make install".
+    (If more than one set of MPI compilers are available on your system, adding
+    option --with-mpi=/path/to/MPI/install to the configure command line is
+    recommended.) Several configure options are also available to customize it.
+    See INSTALL for more information.
+
+    Several machine- and compiler-specific build recipes are available under
+    the directory of doc.
+    - README.IBM        (BlueGene systems)
+    - README.SX         (NEC SX systems)
+    - README.CRAY       (Cray systems)
+    - README.INTEL      (Intel Compilers)
+    - README.LINUX      (GNU compilers)
+    - README.Fujitsu    (Fujitsu systems)
+    - README.K-Computer (the K computer @RIKEN)
+    - README.SGI        (SGI systems, such as Endeavour @NASA)
+    - README.Ubuntu     (Ubuntu)
+
+
+PnetCDF User Documents:
+    C API References
+      http://cucis.ece.northwestern.edu/projects/PnetCDF/doc/pnetcdf-c
+    Questions & Answers
+      http://cucis.ece.northwestern.edu/projects/PnetCDF/faq.html
+
+Note on supporting large files and large variables.
+    - Some Fortran APIs contain arguments of 64-bit integer data type, which
+      corresponds to MPI_Offset data type in their peer C APIs. Declare those
+      arguments as 'integer(kind=MPI_OFFSET_KIND)'.
+
+    - In places where you might use NF_UNLIMITED to define an unlimited
+      dimension in one of the nfmpi_ routines, use NFMPI_UNLIMITED.
+      NFMPI_UNLIMITED has been defined as the proper 64-bit integer type for
+      nfmpi_def_dim, whereas NF_UNLIMITED might be too small. Similarly, for
+      Fortran 90, use NF90MPI_UNLIMITED instead of NF90_UNLIMITED.
+
+
+Mailing List
+    PnetCDF user community discusses the design and use of the library on the
+    parallel-netcdf@mcs.anl.gov mailing list. Anyone interested in developing
+    or using PnetCDF is encouraged to join. Visit the list information page
+    https://lists.mcs.anl.gov/mailman/listinfo/parallel-netcdf
+    for subscription instructions. This mailing list is also for announcements,
+    bug reports, and questions about PnetCDF software.
+
+    The past discussions in the mailing list are available in the follow URL:
+    http://lists.mcs.anl.gov/pipermail/parallel-netcdf/.
+

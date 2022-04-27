@@ -1,0 +1,456 @@
+#! /bin/sh
+#
+# Copyright (C) 2016, Northwestern University and Argonne National Laboratory
+# See COPYRIGHT notice in top-level directory.
+#
+# This forms the basis for the pnetcdf-config utility, which tells you
+# various things about the PnetCDF installation. This code was based on
+# file nc-config.in from netCDF distribution.
+#
+# $Id$
+#
+# src/utils/pnetcdf-config.  Generated from pnetcdf-config.in by configure.
+
+prefix=INSTALL_PREFIX
+exec_prefix=INSTALL_EXEC_PREFIX
+libdir="${exec_prefix}/lib"
+includedir="${prefix}/include"
+
+# Preprocessing:
+FC_DEFINE="-D"
+CPP="/home/gem5project/mpich-install/bin/mpicc -E"
+
+thread_safe_mode="0"
+profiling_mode="0"
+debug_mode="0"
+
+CPPFLAGS=""
+if test "x$debug_mode" = x1 ; then
+   if test "x$CPPFLAGS" = x ; then
+      CPPFLAGS="-DPNETCDF_DEBUG"
+   else
+      CPPFLAGS="$CPPFLAGS -DPNETCDF_DEBUG"
+   fi
+fi
+
+# Compilation:
+MPICC="/home/gem5project/mpich-install/bin/mpicc"
+MPICXX="/home/gem5project/mpich-install/bin/mpicxx"
+MPIF77="/home/gem5project/mpich-install/bin/mpif77"
+MPIF90="/home/gem5project/mpich-install/bin/mpifort"
+
+# debugging and optimization options for compiling and linking
+CFLAGS="-g -O2"
+CXXFLAGS="-g -O2"
+FFLAGS="-g -O2"
+FCFLAGS="-g -O2"
+
+# Linking:
+FLIBS=" -L/home/gem5project/mpich-install/lib -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. -lmpifort -lmpi -lgfortran -lm -lquadmath"
+FCLIBS=" -L/home/gem5project/mpich-install/lib -L/usr/lib/gcc/x86_64-linux-gnu/9 -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../x86_64-linux-gnu -L/usr/lib/gcc/x86_64-linux-gnu/9/../../../../lib -L/lib/x86_64-linux-gnu -L/lib/../lib -L/usr/lib/x86_64-linux-gnu -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-linux-gnu/9/../../.. -lmpifort -lmpi -lgfortran -lm -lquadmath"
+FLDFLAGS="@FLDFLAGS@"
+LDFLAGS=""
+LIBS=""
+
+version="PnetCDF 1.12.3"
+CC=${MPICC}
+F77=${MPIF77}
+F90=${MPIF90}
+
+has_fortran="yes"
+has_cxx="yes"
+enable_erange_fill="1"
+enable_subfiling="0"
+enable_large_single_req="0"
+enable_null_byte_header_padding="0"
+enable_relax_coord_bound="1"
+is_bigendian="no"
+in_place_swap="auto"
+enable_bbdriver="0"
+enable_netcdf4="0"
+enable_adios="0"
+
+if test "x$enable_netcdf4" = x1; then
+   # NetCDF4 header files are required to build PnetCDF, but not PnetCDF applications
+   # CPPFLAGS="$CPPFLAGS "
+   LDFLAGS=" $LDFLAGS"
+   LIBS=" $LIBS"
+fi
+
+if test "x$enable_adios" = x1; then
+   # ADIOS header files are required to build PnetCDF, but not PnetCDF applications
+   LDFLAGS=" $LDFLAGS"
+   LIBS=" $LIBS"
+fi
+
+config_date="Mon Apr 25 15:47:56 EDT 2022"
+release_date="February 21, 2022"
+
+usage()
+{
+    cat <<EOF
+pnetcdf-config is a utility program to display the build and installation
+information of the PnetCDF library.
+
+Usage: pnetcdf-config [OPTION]
+
+Available values for OPTION include:
+
+  --help                      display this help message and exit
+  --all                       display all options
+  --cc                        C compiler used to build PnetCDF
+  --cflags                    C compiler flags used to build PnetCDF
+  --cppflags                  C pre-processor flags used to build PnetCDF
+  --has-c++                   whether C++ API is installed
+  --c++                       C++ compiler used to build PnetCDF
+  --cxxflags                  C++ compiler flags used to build PnetCDF
+  --has-fortran               whether Fortran API is installed
+  --f77                       Fortran 77 compiler used to build PnetCDF
+  --fflags                    Fortran 77 compiler flags used to build PnetCDF
+  --fppflags                  Fortran pre-processor flags used to build PnetCDF
+  --fc                        Fortran 9x compiler used to build PnetCDF
+  --fcflags                   Fortran 9x compiler flags used to build PnetCDF
+  --ldflags                   Linker flags used to build PnetCDF
+  --libs                      Extra libraries used to build PnetCDF
+  --netcdf4                   Whether NetCDF-4 support is enabled or disabled
+  --adios                     Whether ADIOS support is enabled or disabled
+  --relax-coord-bound         Whether using a relaxed coordinate boundary check
+  --in-place-swap             Whether using buffer in-place Endianness byte swap
+  --erange-fill               Whether using fill values for NC_ERANGE error
+  --subfiling                 Whether subfiling is enabled or disabled
+  --large-single-req          Whether to allow single >2GiB MPI-IO requests
+  --null-byte-header-padding  Whether to check null-byte padding in header
+  --burst-buffering           Whether burst buffer driver is built or not
+  --profiling                 Whether internal profiling is enabled or not
+  --thread-safe               Whether thread-safe capability is enabled or not
+  --debug                     Whether PnetCDF is built with debug mode
+  --prefix                    Installation directory
+  --includedir                Installation directory containing header files
+  --libdir                    Installation directory containing library files
+  --version                   Library version
+  --release-date              Date of PnetCDF source was released
+  --config-date               Date of PnetCDF library was configured
+EOF
+    exit $1
+}
+
+all()
+{
+        echo
+        echo "This $version was built with the following features:"
+        echo
+        echo "  --has-c++                   -> $has_cxx"
+        echo "  --has-fortran               -> $has_fortran"
+if test "x$enable_netcdf4" = x1; then
+        echo "  --netcdf4                   -> enabled"
+else
+        echo "  --netcdf4                   -> disabled"
+fi
+if test "x$enable_adios" = x1; then
+        echo "  --adios                     -> enabled"
+else
+        echo "  --adios                     -> disabled"
+fi
+if test "x$enable_relax_coord_bound" = x1; then
+        echo "  --relax-coord-bound         -> enabled"
+else
+        echo "  --relax-coord-bound         -> disabled"
+fi
+if test "x$is_bigendian" = xno ; then
+    if test "x$in_place_swap" = xno ; then
+        echo "  --in-place-swap             -> disabled"
+    elif test "x$in_place_swap" = xyes ; then
+        echo "  --in-place-swap             -> enabled"
+    else
+        echo "  --in-place-swap             -> auto"
+    fi
+fi
+if test "x$enable_erange_fill" = x0; then
+        echo "  --erange-fill               -> disabled"
+else
+        echo "  --erange-fill               -> enabled"
+fi
+if test "x$enable_subfiling" = x1; then
+        echo "  --subfiling                 -> enabled"
+else
+        echo "  --subfiling                 -> disabled"
+fi
+if test "x$enable_large_single_req" = x1; then
+        echo "  --large-single-req          -> enabled"
+else
+        echo "  --large-single-req          -> disabled"
+fi
+if test "x$enable_null_byte_header_padding" = x1; then
+        echo "  --null-byte-header-padding  -> enabled"
+else
+        echo "  --null-byte-header-padding  -> disabled"
+fi
+if test "x$enable_bbdriver" = x1; then
+        echo "  --burst-buffering           -> enabled"
+else
+        echo "  --burst-buffering           -> disabled"
+fi
+if test "x$profiling_mode" = x1; then
+        echo "  --profiling                 -> enabled"
+else
+        echo "  --profiling                 -> disabled"
+fi
+if test "x$thread_safe_mode" = x1; then
+        echo "  --thread-safe               -> enabled"
+else
+        echo "  --thread-safe               -> disabled"
+fi
+if test "x$debug_mode" = x1; then
+        echo "  --debug                     -> enabled"
+else
+        echo "  --debug                     -> disabled"
+fi
+        echo
+        echo "This $version was built using the following compilers and flags:"
+        echo
+        echo "  --cc            -> $MPICC"
+if test "x$has_cxx" = xyes ; then
+        echo "  --cxx           -> $MPICXX"
+fi
+if test "x$has_fortran" = xyes ; then
+        echo "  --f77           -> $MPIF77"
+        echo "  --fc            -> $MPIF90"
+fi
+        echo "  --cppflags      -> $CPPFLAGS"
+        echo "  --cflags        -> $CFLAGS"
+if test "x$has_cxx" = xyes ; then
+        echo "  --cxxflags      -> $CXXFLAGS"
+fi
+if test "x$has_fortran" = xyes ; then
+        echo "  --fflags        -> $FFLAGS"
+        echo "  --fcflags       -> $FCFLAGS"
+#        echo "  --fclibs                    -> $FCLIBS"
+fi
+        echo "  --ldflags       -> $LDFLAGS"
+        echo "  --libs          -> $LIBS"
+        echo
+        echo "This $version has been installed under the following directories:"
+        echo
+        echo "  --prefix        -> $prefix"
+        echo "  --includedir    -> $includedir"
+        echo "  --libdir        -> $libdir"
+        echo
+        echo "Additional information:"
+        echo
+        echo "  --version       -> $version"
+        echo "  --release-date  -> $release_date"
+        echo "  --config-date   -> $config_date"
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+while test $# -gt 0; do
+    case "$1" in
+    # this deals with options in the style
+    # --option=value and extracts the value part
+    # [not currently used]
+    -*=*) value=`echo "$1" | sed 's/[-_a-zA-Z0-9]*=//'` ;;
+    *) value= ;;
+    esac
+
+    case "$1" in
+
+    --help)
+        usage 0
+        ;;
+
+    --all)
+        all
+        ;;
+
+    --cc)
+        echo "$MPICC" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --cflags)
+        echo "$CFLAGS" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --cppflags)
+        echo "$CPPFLAGS" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --prefix)
+       echo "$prefix" | sed -e 's/^[ \t]*//'
+       ;;
+
+    --includedir)
+       echo "$includedir" | sed -e 's/^[ \t]*//'
+       ;;
+
+    --libdir)
+       echo "$libdir" | sed -e 's/^[ \t]*//'
+       ;;
+
+    --ldflags)
+       echo "$LDFLAGS" | sed -e 's/^[ \t]*//'
+       ;;
+
+    --libs)
+       echo "$LIBS" | sed -e 's/^[ \t]*//'
+       ;;
+
+    --version)
+        echo "$version" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --has-c++)
+        echo "$has_cxx" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --cxx)
+        echo "$MPICXX" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --cxxflags)
+        echo "$CXXFLAGS" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --has-fortran)
+        echo "$has_fortran" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --f77)
+        echo "$MPIF77" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --fflags)
+        echo "$FFLAGS" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --fc)
+        echo "$MPIF90" | sed -e 's/^[ \t]*//'
+        ;;
+
+    --fcflags)
+        echo "$FCFLAGS" | sed -e 's/^[ \t]*//'
+        ;;
+
+#    --fclibs)
+#        echo "$FCLIBS" | sed -e 's/^[ \t]*//'
+#        ;;
+
+    --netcdf4)
+if test "x$enable_netcdf4" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --adios)
+if test "x$enable_adios" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --relax-coord-bound)
+if test "x$enable_relax_coord_bound" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --in-place-swap)
+if test "x$is_bigendian" = xno ; then
+   if test "x$in_place_swap" = xno ; then
+        echo "disabled"
+   elif test "x$in_place_swap" = xyes ; then
+        echo "enabled"
+   else
+        echo "auto"
+   fi
+fi
+        ;;
+
+    --erange-fill)
+if test "x${enable_erange_fill}" = xno; then
+        echo "disabled"
+else
+        echo "enabled"
+fi
+        ;;
+
+    --subfiling)
+if test "x$enable_subfiling" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --large-single-req)
+if test "x$enable_large_single_req" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --null-byte-header-padding)
+if test "x$enable_null_byte_header_padding" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --burst-buffering)
+if test "x$enable_bbdriver" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --profiling)
+if test "x$profiling_mode" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --thread-safe)
+if test "x$thread_safe_mode" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --debug)
+if test "x$debug_mode" = x1; then
+        echo "enabled"
+else
+        echo "disabled"
+fi
+        ;;
+
+    --release-date)
+        echo "$release_date"
+        ;;
+
+    --config-date)
+        echo "$config_date"
+        ;;
+
+    *)
+        echo "unknown option: $1"
+        usage 1
+        ;;
+    esac
+    shift
+done
+
+exit 0

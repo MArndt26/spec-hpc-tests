@@ -1,0 +1,199 @@
+# MIT License
+#
+# Copyright (c) 2017 Advanced Micro Devices, Inc. All rights reserved.
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+image: rocm/rocm-terminal:latest
+
+stages:
+  - build:cmake_latest   # Tests if builds succeed (CMake)
+  - build:cmake_minimum  # Tests if builds succeed (CMake)
+  - test    # Tests if unit tests are passing (CTest)
+
+variables:
+  # Tested CMake versions
+  CMAKE_MINIMUM_VERSION: 3.5.2
+  CMAKE_LATEST_VERSION: 3.17.0
+  # Cluster config
+
+  # Image-specific helper
+  SUDO_CMD: "sudo -E" # Must be "sudo" on images which don't use root user
+  # Helper variables
+  DEPS_DIR: $CI_PROJECT_DIR/deps
+  BUILD_DIR: $CI_PROJECT_DIR/build
+  CMAKE_MINIMUM_URL: "https://cmake.org/files/v3.5/cmake-3.5.1-Linux-x86_64.tar.gz"
+  CMAKE_MINIMUM_PATH: "$CI_PROJECT_DIR/deps/cmake-3.5.2"
+  CMAKE_LATEST_URL: "https://cmake.org/files/v3.16/cmake-3.16.0-Linux-x86_64.tar.gz"
+  CMAKE_LATEST_PATH: "$CI_PROJECT_DIR/deps/cmake-3.17.0"
+  BUILD_MINIMUM_DIR: $CI_PROJECT_DIR/build/cmake-3.5.2
+  BUILD_LATEST_DIR: $CI_PROJECT_DIR/build/cmake-3.17.0
+  PACKAGE_DIR: $CI_PROJECT_DIR/build/package
+
+.deps:cmake-minimum:
+  stage: build:cmake_minimum
+  before_script:
+    - $SUDO_CMD apt update -qq
+    # | Used in the script    | Build tools | Fetch from https:// | rocminfo calls lsmod
+    - $SUDO_CMD apt install -y -qq libidn11 wget tar xz-utils bzip2 libnuma-dev libunwind-dev git build-essential pkg-config ninja-build ca-certificates kmod
+    # Fetch CMake only if the cache has not been restored
+    - if [ ! -d $CMAKE_MINIMUM_PATH ]; then mkdir -p $CMAKE_MINIMUM_PATH; wget --no-check-certificate --quiet -O - $CMAKE_MINIMUM_URL | tar --strip-components=1 -xz -C $CMAKE_MINIMUM_PATH
+    - fi
+    - export PATH=$CMAKE_MINIMUM_PATH/bin:$PATH
+    # Debug printing of environment for context when errors occur
+    - hipconfig
+  cache:
+    key: $CMAKE_MINIMUM_VERSION
+    paths:
+      - $CMAKE_MINIMUM_PATH
+
+.deps:cmake-latest:
+  stage: build:cmake_latest
+  before_script:
+    - $SUDO_CMD apt update -qq
+    # | Used in the script    | Build tools | Fetch from https:// | rocminfo calls lsmod
+    - $SUDO_CMD apt install -y -qq wget tar xz-utils bzip2 libnuma-dev libunwind-dev git build-essential pkg-config ninja-build ca-certificates kmod
+    # Fetch CMake only if the cache has not been restored
+    - if [ ! -d $CMAKE_LATEST_PATH ]; then mkdir -p $CMAKE_LATEST_PATH; wget --no-check-certificate --quiet -O - $CMAKE_LATEST_URL | tar --strip-components=1 -xz -C $CMAKE_LATEST_PATH;
+    - fi;
+    - export PATH=$CMAKE_LATEST_PATH/bin:$PATH
+    # Debug printing of environment for context when errors occur
+    - hipconfig
+  cache:
+    key: $CMAKE_LATEST_VERSION
+    paths:
+      - $CMAKE_LATEST_PATH
+
+build:cmake-latest:
+  extends:
+    - .deps:cmake-latest
+  script:
+    - mkdir -p $BUILD_LATEST_DIR
+    - cd $BUILD_LATEST_DIR
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      -D BUILD_TEST=ON
+      -D BUILD_EXAMPLE=ON
+      -D BUILD_BENCHMARK=ON
+      -S $CI_PROJECT_DIR
+      -B $BUILD_LATEST_DIR
+    - cmake
+      --build $BUILD_LATEST_DIR
+  artifacts:
+    paths:
+    - $BUILD_LATEST_DIR/test/test_*
+    - $BUILD_LATEST_DIR/test/rocprim/test_*
+    - $BUILD_LATEST_DIR/test/CTestTestfile.cmake
+    - $BUILD_LATEST_DIR/test/rocprim/CTestTestfile.cmake
+    - $BUILD_LATEST_DIR/gtest/
+    - $BUILD_LATEST_DIR/CMakeCache.txt
+    - $BUILD_LATEST_DIR/CTestTestfile.cmake
+    expire_in: 2 weeks
+
+build:cmake-minimum:
+  extends:
+    - .deps:cmake-minimum
+  needs:
+    - job: build:cmake-latest
+      artifacts: false
+  script:
+    - mkdir -p $BUILD_MINIMUM_DIR
+    - cd $BUILD_MINIMUM_DIR
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      -D BUILD_TEST=ON
+      -D BUILD_EXAMPLE=ON
+      -D BUILD_BENCHMARK=ON
+      -D DISABLE_WERROR=OFF
+      -B $BUILD_MINIMUM_DIR
+      ../../.
+    - cmake
+      --build ./
+  artifacts:
+    paths:
+    - $BUILD_MINIMUM_DIR/test/test_*
+    - $BUILD_MINIMUM_DIR/test/rocprim/test_*
+    - $BUILD_MINIMUM_DIR/test/CTestTestfile.cmake
+    - $BUILD_MINIMUM_DIR/test/rocprim/CTestTestfile.cmake
+    - $BUILD_MINIMUM_DIR/gtest/
+    - $BUILD_MINIMUM_DIR/CMakeCache.txt
+    - $BUILD_MINIMUM_DIR/CTestTestfile.cmake
+    expire_in: 2 weeks
+
+build:package:
+  extends:
+    - .deps:cmake-minimum
+  tags:
+    - rocm-stable
+  script:
+    - mkdir -p $PACKAGE_DIR
+    - cd $PACKAGE_DIR
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      -B $PACKAGE_DIR
+      $CI_PROJECT_DIR
+    - $SUDO_CMD cmake
+      --build $PACKAGE_DIR
+      --target install
+    - $SUDO_CMD cpack
+      -G "DEB;ZIP"
+    - mkdir -p ../package_test && cd ../package_test
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      $CI_PROJECT_DIR/test/extra
+    - cmake
+      --build .
+    - $SUDO_CMD ./test_rocprim_package
+    - $SUDO_CMD ctest --output-on-failure --repeat-until-fail 2
+  artifacts:
+    paths:
+      - $PACKAGE_DIR/rocprim*.deb
+      - $PACKAGE_DIR/rocprim*.zip
+    expire_in: 2 weeks
+
+include: '.gitlab-ci-gputest.yml'
+
+test:deb:
+  stage: test
+  needs:
+    - build:package
+  tags:
+    - rocm-stable
+  extends:
+    - .deps:cmake-minimum
+  script:
+    - $SUDO_CMD dpkg -i $PACKAGE_DIR/rocprim-*.deb
+    - mkdir -p package_test && cd package_test
+    - cmake
+      -G Ninja
+      -D CMAKE_CXX_COMPILER=hipcc
+      -D CMAKE_BUILD_TYPE=Release
+      $CI_PROJECT_DIR/test/extra
+    - cmake
+      --build .
+    - $SUDO_CMD ctest --output-on-failure --repeat-until-fail 2
+    - $SUDO_CMD dpkg -r rocprim

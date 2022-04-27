@@ -62,6 +62,9 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
+PATH := /home/mpich-install/bin:$(PATH)
+LD_LIBRARY := /home/mpich-install/lib
+
 OMP_INTEL     = -openmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp

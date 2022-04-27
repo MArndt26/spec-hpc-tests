@@ -1,0 +1,49 @@
+#
+# Unimplemented functions, approaches we have to revisit, and other unfinished
+# tasks
+#
+# $Id$
+
+DATA MODE FUNCTIONS: U == unimplemented I == implemented
+
+ncmpi_get  text uchar schar short int long float double ushort uint int64 uint64
+var1         I   I      I    I     I   I    I      I      I     I     I     I
+var1_all     I   I      I    I     I   I    I      I      I     I     I     I
+var          I   I      I    I     I   I    I      I      I     I     I     I
+var_all      I   I      I    I     I   I    I      I      I     I     I     I
+vara         I   I      I    I     I   I    I      I      I     I     I     I
+vara_all     I   I      I    I     I   I    I      I      I     I     I     I
+vars         I   I      I    I     I   I    I      I      I     I     I     I
+vars_all     I   I      I    I     I   I    I      I      I     I     I     I
+varm         I   I      I    I     I   I    I      I      I     I     I     I
+varm_all     I   I      I    I     I   I    I      I      I     I     I     I
+varn         I   I      I    I     I   I    I      I      I     I     I     I
+varn_all     I   I      I    I     I   I    I      I      I     I     I     I
+vard         I   I      I    I     I   I    I      I      I     I     I     I
+vard_all     I   I      I    I     I   I    I      I      I     I     I     I
+
+ncmpi_put  text uchar schar short int long float double ushort uint int64 uint64
+var1         I   I      I    I     I   I    I      I      I     I     I     I
+var1_all     I   I      I    I     I   I    I      I      I     I     I     I
+var          I   I      I    I     I   I    I      I      I     I     I     I
+var_all [1]  I   I      I    I     I   I    I      I      I     I     I     I
+vara         I   I      I    I     I   I    I      I      I     I     I     I
+vara_all     I   I      I    I     I   I    I      I      I     I     I     I
+vars         I   I      I    I     I   I    I      I      I     I     I     I
+vars_all     I   I      I    I     I   I    I      I      I     I     I     I
+varm         I   I      I    I     I   I    I      I      I     I     I     I
+varm_all     I   I      I    I     I   I    I      I      I     I     I     I
+varn         I   I      I    I     I   I    I      I      I     I     I     I
+varn_all     I   I      I    I     I   I    I      I      I     I     I     I
+vard         I   I      I    I     I   I    I      I      I     I     I     I
+vard_all     I   I      I    I     I   I    I      I      I     I     I     I
+
+[1] ncmpi_put_var_all may not make much sense, as multiple MPI processes
+    concurrently write to the same variable in the file, but we keep it
+    just for completeness.
+
+OTHER FUNCTIONS:
+
+Not yet implemented:
+*
+
