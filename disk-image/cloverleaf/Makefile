@@ -1,6 +1,7 @@
 all: 
 	@echo "Error: No option selected!"
 	@echo "  mount"
+	@echo "  umount"
 	@echo "  transfer"
 
 mount:
@@ -13,4 +14,4 @@ unmount:
 
 transfer:
 	@echo "Transfering image to saguaro1"
-	cd image/; scp image arndt20@saguaro1.ecn.purdue.edu:/home/shay/a/arndt20/ece666/spec-hpc-tests/disk-image/from-src/from-src-image
+	cd image/; scp image arndt20@saguaro1.ecn.purdue.edu:/home/shay/a/arndt20/ece666/spec-hpc-tests/disk-image/cloverleaf/cloverleaf-image/cloverleaf

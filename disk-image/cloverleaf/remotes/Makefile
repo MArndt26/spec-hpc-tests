@@ -10,7 +10,7 @@ cloverleaf_run:
 ifndef CORES
 	$(error CORES is not set)
 endif
-	cd CloverLeaf_OpenMP/; export OMP_NUM_THREADS=$(CORES) ; ./cover_leaf
+	cd CloverLeaf_OpenMP/; export OMP_NUM_THREADS=$(CORES) ; ./clover_leaf
 
 cloverleaf_clean:
 	@echo "Cleaning Cloverleaf"
