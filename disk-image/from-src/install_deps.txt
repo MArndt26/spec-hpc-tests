@@ -1,0 +1,1 @@
+Notes: need to change the /usr/bin/bash to /bin/bash for mpich-install

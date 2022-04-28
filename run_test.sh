@@ -13,7 +13,8 @@ addtag() {
 
 mkdir archive
 
-for cpu in 1 2 4 8
+# for cpu in 1 2 4 8
+for cpu in 1
 do
     echo "Starting run with benchmark: $b, cpu: $cpu" | addtag
     ./gem5/build/X86/gem5.opt --outdir=archive/$b-p$cpu x86-spec-hpc-benchmarks.py --benchmark $b --cores $cpu | addtag &>> transcript.log

@@ -10,7 +10,6 @@ disk-image/spec-hpc/spec-hpc-image
 disk-image/spec-hpc/spec-hpc-image-old
 # TODO: CHANGE THIS AFTER WE GET WORKING CODE/BENCHMARK FORMAT
 disk-image/spec-hpc/SOMA
-disk-image/spec-hpc/TeaLeaf
 disk-image/packer_cache
 gem5**
 resources

@@ -60,13 +60,18 @@
     },
     {
       "type": "file",
-      "source": "spec-hpc/spec_hpc_2021",
+      "source": "spec-hpc/remotes/CloverLeaf_MPI",
       "destination": "/home/gem5/"
     },
     {
       "type": "file",
-      "source": "spec-hpc/mpich-install",
-      "destination": "/home/"
+      "source": "spec-hpc/remotes/CloverLeaf_OpenMP",
+      "destination": "/home/gem5/"
+    },
+    {
+      "type": "file",
+      "source": "spec-hpc/remotes/miniWeather_MPI",
+      "destination": "/home/gem5/"
     },
     {
       "type": "shell",

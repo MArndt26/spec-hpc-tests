@@ -168,19 +168,38 @@ board = X86Board(
 
 command = (
     "echo 'Starting Test Run';"
-    + "cd /home/gem5/tests;"
+    + "ls -lah /home/gem5;"
+    # + "cd /home/mpich-3.4.1;"
+    # + "./configure --prefix=/home/mpich-install 2>&1 --with-device=ch3 | tee c.txt;"
+    # + "make 2>&1 | tee m.txt;"
+    # + "make install 2>&1 | tee mi.txt;"
+    # + "PATH=/home/mpich-install/bin:$PATH ; export PATH;"
+    # + "cd /home/gem5/tests;"
     + "export PATH=\"/home/mpich-install/bin:$PATH\";"
     + "export PATH=\"/home/PnetCDF/bin:$PATH\";"  # added new for miniWeather
     + "export LD_LIBRARY_PATH=\"/home/mpich-install/lib:$LD_LIBRARY_PATH\";"
-    + "mpicc --version;"
-    + "mpirun --version;"
-    + "echo $PATH;"
-    + "echo $LD_LIBRARY_PATH;"
-    + "make {}_build CORES={};".format(args.benchmark, args.cores)
+    + "cd /home/gem5/CloverLeaf_OpenMP/;"
+    + "make clean;"
+    + "make COMPILER=GNU MPI_COMPILER=gfortran C_MPI_COMPILER=gcc;"
+    + "export OMP_NUM_THREADS=4;"
+    # + "mpirun -np 8 /home/gem5/CloverLeaf_MPI/clover_leaf;"
+    # + "echo 'Starting Cmake Version';"
+    # + "/home/cmake-install --version;"
+    # + "echo 'Ending Cmake Version';"
+    # + "source /home/gem5/miniWeather_MPI/c/build/cmake_fhqwhgads_gnu.sh;"
+    # + "make;"
+    # + "make test;"
+
+    # + "cd /home/gem5/CloverLeaf_MPI/;"
+    # + "make clean;"
+    # + "make COMPILER=GNU;"
+
+
     + "m5 exit;"  # switch from kvm to timing processor
-    + "cd CloverLeaf_MPI; mpirun -np {} ./clover_leaf;".format(args.cores)
-    + "make {}_run CORES={};".format(args.benchmark, args.cores)
-    + "sleep 2; m5 exit;"  # dump stats
+    + "./clover_leaf;"
+    # + "mpirun -np {} ./clover_leaf;".format(args.cores)
+    # + "make {}_run CORES={};".format(args.benchmark, args.cores)
+    + "sleep 5; m5 exit;"  # dump stats
 )
 
 board.set_kernel_disk_workload(
@@ -192,7 +211,8 @@ board.set_kernel_disk_workload(
     ),
     # The location of the x86 SPEC hpc 2021 image
     disk_image=CustomDiskImageResource(
-        local_path="disk-image/from-src/from-src-image/image",
+        # local_path="disk-image/from-src/from-src-image/image",
+        local_path="disk-image/spec-hpc/spec-hpc-image/spec-hpc",
         disk_root_partition="1"),
     readfile_contents=command,
 )

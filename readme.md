@@ -187,3 +187,9 @@ The last line in `/home/gem5project/spec-hpc-tests/m5out/system.pc.com_1.device`
 `PATH=/home/<USERNAME>/mpich-install/bin:$PATH ; export PATH`
 `which mpicc`
 `which mpiexec`
+
+build/X86/dev/reg_bank.hh:833: panic: panic condition addr - base() + bytes > size() occurred: Out of bounds read in register bank system.pc.south_bridge.ide.config
+_space_regs, address 0xfc, size 4.                                                                                                                                  
+Memory Usage: 5172640 KBytes                                                                                                                                        
+Program aborted at tick 52276669967700 
+
