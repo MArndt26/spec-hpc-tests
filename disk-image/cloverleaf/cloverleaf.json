@@ -29,7 +29,7 @@
       "iso_checksum_type": "{{ user `iso_checksum_type` }}",
       "iso_urls": ["{{ user `iso_url` }}"],
       "memory": "{{ user `vm_memory`}}",
-      "output_directory": "spec-hpc/{{ user `image_name` }}-image",
+      "output_directory": "out/{{ user `image_name` }}-image",
       "qemuargs": [
         ["-cpu", "host"],
         ["-display", "none"]
@@ -55,20 +55,20 @@
     },
     {
       "type": "file",
-      "source": "spec-hpc/runscript.sh",
+      "source": "cloverleaf/runscript.sh",
       "destination": "/home/gem5/"
     },
     {
       "type": "file",
-      "source": "spec-hpc/remotes/CloverLeaf_OpenMP",
+      "source": "cloverleaf/remotes",
       "destination": "/home/gem5/"
     },
     {
       "type": "shell",
       "execute_command": "echo '{{ user `ssh_password` }}' | {{.Vars}} sudo -E -S bash '{{.Path}}'",
       "scripts": [
-        "spec-hpc/post-installation.sh",
-        "spec-hpc/spec-hpc-install.sh"
+        "cloverleaf/post-installation.sh",
+        "cloverleaf/cloverleaf-install.sh"
       ]
     }
   ],
@@ -89,6 +89,6 @@
     "ssh_username": "gem5",
     "vm_cpus": "16",
     "vm_memory": "8192",
-    "image_name": "spec-hpc"
+    "image_name": "cloverleaf"
   }
 }
