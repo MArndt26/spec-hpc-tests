@@ -29,7 +29,7 @@
       "iso_checksum_type": "{{ user `iso_checksum_type` }}",
       "iso_urls": ["{{ user `iso_url` }}"],
       "memory": "{{ user `vm_memory`}}",
-      "output_directory": "out/{{ user `image_name` }}-image",
+      "output_directory": "cloverleaf/{{ user `image_name` }}-image",
       "qemuargs": [
         ["-cpu", "host"],
         ["-display", "none"]
