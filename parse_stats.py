@@ -1,4 +1,8 @@
-#!/usr/bin/python
+#!/usr/bin/python3
+import matplotlib.pyplot as plt
+import os
+import numpy as np
+
 
 def dprint(dict):
     for key in dict:
@@ -37,12 +41,41 @@ def parse(filename):
             line = line.strip()
             items = line.split()
             if any(s in line for s in search.keys()):
-                print(line)
-                print(items)
+                # print(line)
+                # print(items)
                 search[items[0]].append(items[1])
     return search
 
 
 if __name__ == "__main__":
-    test = parse("archive/cloverleaf-p1-lock/stats.txt")
-    dprint(test)
+
+    benchmarks = dict.fromkeys(["cloverleaf"])
+
+    # ps = dict.fromkeys([1, 2, 4, 8])
+    ps = dict.fromkeys([1, 2])
+
+    if not os.path.isdir("parse_out"):
+        print("Creating output directory")
+        os.system("mkdir parse_out")
+
+    # dprint(stats)
+
+    # parallel speed up graph
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_ylabel('speedup')
+    ax.set_xlabel('processors')
+    ax.set_title('parallel speedup')
+
+    for b in benchmarks:
+        processors = []
+        speedups = []
+
+        for p in ps:
+            stats = parse("archive/{}-p{}-lock/stats.txt".format(b, p))
+            processors.append(float(p))
+            speedups.append(float(stats["simSeconds"][1]))
+
+        ax.plot(processors, speedups, marker='o')
+
+    plt.savefig('parse_out/speedup.png')
