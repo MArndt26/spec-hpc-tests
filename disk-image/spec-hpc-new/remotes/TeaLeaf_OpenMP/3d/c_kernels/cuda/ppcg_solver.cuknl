@@ -1,0 +1,86 @@
+
+__global__ void ppcg_init(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+        const int halo_depth,
+		const double theta,
+		const double* vec_r,
+		double* vec_sd)
+{
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*y_inner*z_inner) return;
+
+    const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+	vec_sd[index] = vec_r[index] / theta;
+}
+
+__global__ void ppcg_calc_ur(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+        const int halo_depth,
+		const double* vec_kx,
+		const double* vec_ky,
+		const double* vec_kz,
+		const double* vec_sd,
+		double* vec_u,
+		double* vec_r)
+{
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*y_inner*z_inner) return;
+
+	const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+	const double smvp = (1.0
+			+ (vec_kx[index+1]+vec_kx[index])
+			+ (vec_ky[index+x]+vec_ky[index])
+			+ (vec_kz[index+page]+vec_kz[index]))*vec_sd[index]
+		- (vec_kx[index+1]*vec_sd[index+1]+vec_kx[index]*vec_sd[index-1])
+		- (vec_ky[index+x]*vec_sd[index+x]+vec_ky[index]*vec_sd[index-x])
+		- (vec_kz[index+page]*vec_sd[index+page]+vec_kz[index]*vec_sd[index-page]);
+
+	vec_r[index] -= smvp;
+	vec_u[index] += vec_sd[index];
+}
+
+__global__ void ppcg_calc_sd(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+        const int halo_depth,
+		const double alpha,
+		const double beta,
+		const double* vec_r,
+		double* vec_sd)
+{
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*y_inner*z_inner) return;
+
+	const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+	vec_sd[index] = alpha*vec_sd[index] + beta*vec_r[index];
+}
+

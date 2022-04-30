@@ -1,0 +1,318 @@
+
+__global__ void pack_back(
+		const int x,
+		const int y,
+		const int z,
+		const int halo_depth,
+        double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = x*y*halo_depth
+		+ x*halo_depth
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void pack_front(
+		const int x,
+		const int y,
+		const int z,
+		const int halo_depth,
+        double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = x*y*(z-halo_depth-depth)
+		+ x*halo_depth
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void unpack_back(
+		const int x,
+		const int y,
+		const int z,
+		const int halo_depth,
+        double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = x*y*(halo_depth-depth)
+		+ x*halo_depth
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	field[offset+gid] = buffer[gid];
+}
+
+__global__ void unpack_front(
+		const int x,
+		const int y,
+		const int z,
+		const int halo_depth,
+        double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = x*y*(z-halo_depth)
+		+ x*halo_depth
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	field[offset+gid] = buffer[gid];
+}
+
+__global__ void pack_left(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	int lines = gid/depth;
+	int offset = 
+		x*y*halo_depth
+		+ x*halo_depth
+		+ halo_depth
+		+ lines *(x-depth)
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void pack_right(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	int lines = gid/depth;
+	int offset = 
+		x*y*halo_depth
+		+ x*halo_depth
+		+ (x-halo_depth-depth)
+		+ lines *(x-depth)
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void unpack_left(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	int lines = gid/depth;
+	int offset = 
+		x*y*halo_depth
+		+ x*halo_depth
+		+ (halo_depth-depth)
+		+ lines *(x-depth)
+		+ (lines/y_inner)*x*2*halo_depth;
+	field[offset+gid] = buffer[gid];
+}
+
+__global__ void unpack_right(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	int lines = gid/depth;
+	int offset = 
+		x*y*halo_depth
+		+ x*halo_depth
+		+ x-halo_depth
+		+ lines *(x-depth)
+		+ (lines/y_inner)*x*2*halo_depth;
+
+	field[offset+gid] = buffer[gid];
+}
+
+__global__ void unpack_top(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= z_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = 
+		x*y*halo_depth
+		+ x*(y-halo_depth-depth)
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ x*(y-depth)*(lines/depth);
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void unpack_bottom(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= z_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = 
+		x*y*halo_depth
+		+ x*halo_depth
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ x*(y-depth)*(lines/depth);
+
+	buffer[gid] = field[offset+gid];
+}
+
+__global__ void unpack_top(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= z_inner*x_inner*depth) return;
+
+	int lines = gid/x_inner;
+	int offset = 
+		x*y*halo_depth
+		+ x*(y-halo_depth)
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ x*(y-depth)*(lines/depth);
+
+	field[offset+gid] = buffer[gid];
+}
+
+__global__ void unpack_bottom(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		double* field,
+		double* buffer,
+		const int depth)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= z_inner*x_inner*depth) return;
+
+	const int lines = gid/x_inner;
+	const int offset = x*y*halo_depth
+		+ x*(halo_depth-depth)
+		+ halo_depth
+		+ lines*2*halo_depth
+		+ x*(y-depth)*(lines/depth);
+
+	field[offset+gid] = buffer[gid];
+}
+

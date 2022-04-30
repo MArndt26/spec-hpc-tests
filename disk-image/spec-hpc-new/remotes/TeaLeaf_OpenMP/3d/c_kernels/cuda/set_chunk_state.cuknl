@@ -1,0 +1,88 @@
+#include "../../settings.h"
+
+__global__ void set_chunk_initial_state(
+        const int x,
+        const int y,
+        const int z,
+		const double default_energy, 
+		const double default_density, 
+		double* energy0,
+	   	double* density)
+{
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= x*y*z) return;
+
+    energy0[gid]=default_energy;
+    density[gid]=default_density;
+}	
+
+__global__ void set_chunk_state(
+        const int x,
+        const int y,
+        const int z,
+        const double* vertex_x,
+        const double* vertex_y,
+        const double* vertex_z,
+        const double* cell_x,
+        const double* cell_y,
+        const double* cell_z,
+        double* density,
+        double* energy0,
+        double* vec_u,
+        State state)
+{
+    const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+    const int page = x*y;
+    const int x_loc = gid%x;
+    const int y_loc = (gid/x)%y;
+    const int z_loc = gid/page;
+    int applyState = 0;
+
+    if(z_loc < z)
+    {
+        if(state.geometry == CUBOID)
+        {
+            apply_state = (
+                    vertex_x[kk+1] >= state.x_min && 
+                    vertex_x[kk] < state.x_max    &&
+                    vertex_y[jj+1] >= state.y_min &&
+                    vertex_y[jj] < state.y_max    &&
+                    vertex_z[ii+1] >= state.z_min &&
+                    vertex_z[ii] < state.z_max);
+        }
+        else if(state.geometry == SPHERICAL)
+        {
+            double radius = sqrt(
+                    (cell_x[kk]-state.x_min)*
+                    (cell_x[kk]-state.x_min)+
+                    (cell_y[jj]-state.y_min)*
+                    (cell_y[jj]-state.y_min)+
+                    (cell_z[ii]-state.z_min)*
+                    (cell_z[ii]-state.z_min));
+
+            apply_state = (radius <= state.radius);
+        }
+        else if(state.geometry == POINT)
+        {
+            apply_state = (
+                    vertex_x[kk] == state.x_min &&
+                    vertex_y[jj] == state.y_min &&
+                    vertex_z[ii] == state.z_min);
+        }
+
+        // Check if state applies at this vertex, and apply
+        if(apply_state)
+        {
+            int index = ii*y*x+jj*x+kk;
+            energy0[index] = state.energy;
+            density[index] = state.density;
+        }
+    }
+
+    if(x_loc > 0 && x_loc < x-1 && 
+            y_loc > 0 && y_loc < y-1 && 
+            z_loc > 0 && z_loc < z-1)
+    {
+        u[gid]=energy0[gid]*density[gid];
+    }
+}
