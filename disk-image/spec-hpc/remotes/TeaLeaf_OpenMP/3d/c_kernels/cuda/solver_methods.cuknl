@@ -1,0 +1,121 @@
+
+__global__ void copy_u(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+        const int halo_depth,
+		const double* src,
+		double* dest)
+{
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*y_inner*z_inner) return;
+
+    const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+	dest[index] = src[index];	
+}
+
+__global__ void calculate_residual(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+        const int halo_depth,
+		const double* vec_u,
+		const double* vec_u0,
+		const double* vec_kx,
+		const double* vec_ky,
+		const double* vec_kz,
+		double* vec_r)
+{
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*y_inner*z_inner) return;
+
+    const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+	const double smvp = SMVP(vec_u);
+	vec_r[index] = vec_u0[index] - smvp;
+}
+
+__global__ void calculate_2norm(
+		const int x_inner,
+		const int y_inner,
+		const int z_inner,
+		const int x,
+		const int page,
+		const double* src,
+		double* norm)
+{
+	__shared__ double norm_shared[BLOCK_SIZE];
+
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+
+	if(gid < x_inner*y_inner*z_inner)
+	{
+        const int x = x_inner + 2*halo_depth;
+        const int y = y_inner + 2*halo_depth;
+        const int page = x*y;
+        const int col = gid%x_inner;
+        const int row = (gid/x_inner)%y_inner; 
+        const int slice = gid/(x_inner*y_inner); 
+        const int off0 = halo_depth*(page+x+1);
+        const int index = off0+col+row*x+slice*page;
+
+        norm_shared[threadIdx.x] = src[index]*src[index];
+    }
+    else
+    {
+        norm_shared[threadIdx.x] = 0.0;
+    }
+
+    Reduce<double, BLOCK_SIZE/2>::Run(norm_shared, norm, SUM);
+}
+
+__global__ void CuKnlFinalise(
+        const int x_inner,
+        const int y_inner,
+        const int z_inner,
+        const int halo_depth,
+        const double* density,
+        const double* vec_u,
+        double* energy)
+{
+    const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+    if(gid >= x_inner*y_inner*z_inner) return;
+
+    const int x = x_inner + 2*halo_depth;
+    const int y = y_inner + 2*halo_depth;
+    const int page = x*y;
+    const int col = gid%x_inner;
+    const int row = (gid/x_inner)%y_inner; 
+    const int slice = gid/(x_inner*y_inner); 
+    const int off0 = halo_depth*(page+x+1);
+    const int index = off0+col+row*x+slice*page;
+
+    energy[index] = vec_u[index]/density[index];
+}
+
+__global__ void sum_reduce(
+        const int n,
+        double* buffer)
+{
+    __shared__ double buffer_shared[BLOCK_SIZE];
+
+    const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+    buffer_shared[threadIdx.x] = (gid < n) ? buffer[gid] : 0.0;
+
+    Reduce<double, BLOCK_SIZE/2>::Run(buffer_shared, buffer, SUM);
+}

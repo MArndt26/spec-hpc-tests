@@ -1,0 +1,175 @@
+
+__global__ void update_bottom(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*z_inner*depth) return;
+
+	const int lines = gid/x_inner;
+	const int flip = lines%depth;
+	const int offset = x*y*halo_depth
+	 	+ x*halo_depth
+	 	+ halo_depth
+	 	+ lines*2*halo_depth
+	 	+ x*(y-depth)*(lines/depth);
+
+	const int from_index = offset+gid;
+	const int to_index = from_index-(1+flip*2)*x;
+	buffer[to_index] = buffer[from_index];
+}
+
+__global__ void update_top(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+	if(gid >= x_inner*z_inner*depth) return;
+
+	const int lines = gid/x_inner;
+	const int flip = lines%depth;
+	const int offset = x*y*halo_depth
+	 	+ x*(y-halo_depth)
+	 	+ halo_depth
+	 	+ lines*2*halo_depth
+	 	+ x*(y-depth)*(lines/depth);
+
+	const int to_index = offset+gid;
+	const int from_index = to_index-(1+flip*2)*x;
+	buffer[to_index] = buffer[from_index];
+}
+
+__global__ void update_front(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= x_inner*y_inner*depth) return;
+
+	const int lines = gid/x_inner;
+	const int flip = gid / (x_inner*y_inner);
+	const int page = x*y;
+	const int offset = page*(z-halo_depth)
+	 	+ x*halo_depth
+	 	+ halo_depth
+	 	+ lines*2*halo_depth
+	 	+ (lines/y_inner)*x*2*halo_depth;
+
+	const int to_index = offset+gid;
+	const int from_index = to_index-(1+flip*2)*page;
+
+	buffer[to_index] = buffer[from_index];
+}
+
+__global__ void update_back(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= x_inner*y_inner*depth) return;
+
+	const int lines = gid/x_inner;
+	const int flip = gid / (x_inner*y_inner);
+	const int page = x*y;
+	const int offset = page*halo_depth
+	 	+ x*halo_depth
+	 	+ halo_depth
+	 	+ lines*2*halo_depth
+	 	+ (lines/y_inner)*x*2*halo_depth;
+
+	const int from_index = offset+gid;
+	const int to_index = from_index-(1+flip*2)*page;
+
+	buffer[to_index] = buffer[from_index];
+}
+
+__global__ void update_left(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	const int lines = gid/depth;
+	const int flip = gid % depth;
+	const int offset = x*y*halo_depth
+	 	+ halo_depth
+	 	+ x*halo_depth
+	 	+ lines *(x-depth)
+	 	+ (lines/y_inner)*x*2*halo_depth;
+
+	const int from_index = offset+gid;
+	const int to_index = from_index-(1+flip*2);
+
+	buffer[to_index] = buffer[from_index];
+}
+
+__global__ void update_right(
+		const int x,
+		const int y,
+		const int z,
+        const int halo_depth,
+		const int depth,
+		double* buffer)
+{
+    const int x_inner = x - 2*halo_depth;
+    const int y_inner = y - 2*halo_depth;
+    const int z_inner = z - 2*halo_depth;
+
+	const int gid = threadIdx.x+blockDim.x*blockIdx.x;
+	if(gid >= y_inner*z_inner*depth) return;
+
+	const int lines = gid/depth;
+	const int flip = gid % depth;
+	const int offset = x*y*halo_depth
+	    + (x-halo_depth)
+	    + x*halo_depth
+	    + lines *(x-depth)
+	    + (lines/y_inner)*x*2*halo_depth;
+
+	const int to_index = offset+gid;
+	const int from_index = to_index-(1+flip*2);
+
+	buffer[to_index] = buffer[from_index];
+}
+

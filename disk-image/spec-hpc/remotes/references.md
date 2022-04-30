@@ -1,3 +1,3 @@
 # References
-- `CloverLeaf_MPI` has been forked from https://github.com/UK-MAC/CloverLeaf_MPI.git
-- `miniWeather_MPI` has been forked from https://github.com/mrnorman/miniWeather.git
+- `CloverLeaf_OpenMP` has been forked from https://github.com/UK-MAC/CloverLeaf_OpenMP.git
+- `TeaLeaf_OpenMP` has been forked from https://github.com/UoB-HPC/TeaLeaf

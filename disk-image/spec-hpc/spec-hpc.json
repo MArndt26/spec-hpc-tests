@@ -60,17 +60,7 @@
     },
     {
       "type": "file",
-      "source": "spec-hpc/remotes/CloverLeaf_MPI",
-      "destination": "/home/gem5/"
-    },
-    {
-      "type": "file",
-      "source": "spec-hpc/remotes/CloverLeaf_OpenMP",
-      "destination": "/home/gem5/"
-    },
-    {
-      "type": "file",
-      "source": "spec-hpc/remotes/miniWeather_MPI",
+      "source": "spec-hpc/remotes",
       "destination": "/home/gem5/"
     },
     {
