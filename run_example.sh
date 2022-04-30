@@ -2,7 +2,7 @@
 
 trap "exit" INT
 
-b=cloverleaf
+b=cloverleaf #or tealeaf
 
 # run system configuration
 addtag() {
