@@ -24,3 +24,5 @@ disk-image/from-src/from-src-image
 disk-image/from-src/scripts/*.pc
 disk-image/from-src/mpich*
 disk-image/cloverleaf/cloverleaf-image
+parse_out
+spec-hpc-old

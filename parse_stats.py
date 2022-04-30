@@ -52,7 +52,7 @@ if __name__ == "__main__":
     benchmarks = dict.fromkeys(["cloverleaf"])
 
     # ps = dict.fromkeys([1, 2, 4, 8])
-    ps = dict.fromkeys([1])
+    ps = dict.fromkeys([1, 2])
 
     if not os.path.isdir("parse_out"):
         print("Creating output directory")
@@ -77,7 +77,7 @@ if __name__ == "__main__":
                 ref_time = stats["simSeconds"]
 
             processors.append(p)
-            speedups.append(stats["simSeconds"] / ref_time)
+            speedups.append(ref_time / stats["simSeconds"])
 
         ax.plot(processors, speedups, marker='o')
 
