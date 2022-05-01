@@ -191,3 +191,10 @@ The last line in `/home/gem5project/spec-hpc-tests/m5out/system.pc.com_1.device`
 ## perf_event_paranoid
 - Need to change `/proc/sys/kernel/perf_event_paranoid` to 1
   - this is required by gem5 to run the simulation scripts
+
+`chmod +R a+w archive` --> please be smart with this!
+
+notes: 
+cat /proc/sys/kernel/hostname
+running cache sweep with 
+cores=4
