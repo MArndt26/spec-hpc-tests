@@ -51,8 +51,7 @@ if __name__ == "__main__":
 
     benchmarks = dict.fromkeys(["cloverleaf"])
 
-    # ps = dict.fromkeys([1, 2, 4, 8])
-    ps = dict.fromkeys([1, 2])
+    ps = dict.fromkeys([1, 2, 4, 8])
 
     if not os.path.isdir("parse_out"):
         print("Creating output directory")
@@ -61,9 +60,6 @@ if __name__ == "__main__":
     # parallel speed up graph
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.set_ylabel('speedup (1/s)')
-    ax.set_xlabel('processors')
-    ax.set_title('parallel speedup')
 
     for b in benchmarks:
         processors = []
@@ -71,7 +67,8 @@ if __name__ == "__main__":
         ref_time = None
 
         for p in sorted(ps):
-            stats = parse("archive/{}-p{}-lock/stats.txt".format(b, p))
+            stats = parse(
+                "archive-remote/archive/{}-p{}-32kB-lock/stats.txt".format(b, p))
             dprint(stats)
             if p == 1:
                 ref_time = stats["simSeconds"]
@@ -79,6 +76,10 @@ if __name__ == "__main__":
             processors.append(p)
             speedups.append(ref_time / stats["simSeconds"])
 
-        ax.plot(processors, speedups, marker='o')
+        ax.plot(processors, speedups, marker='o', label=b)
 
+    ax.set_ylabel('speedup')
+    ax.set_xlabel('processors')
+    ax.set_title('parallel speedup')
+    ax.legend()
     plt.savefig('parse_out/speedup.png')
