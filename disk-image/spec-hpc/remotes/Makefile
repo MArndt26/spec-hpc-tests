@@ -14,7 +14,7 @@ cloverleaf_run:
 ifndef CORES
 	$(error CORES is not set)
 endif
-	cd CloverLeaf_OpenMP/2d; export OMP_NUM_THREADS=$(CORES) ; ./clover_leaf
+	cd CloverLeaf_OpenMP; export OMP_NUM_THREADS=$(CORES) ; ./clover_leaf
 
 tealeaf_run:
 	@echo "Running Tealeaf"
