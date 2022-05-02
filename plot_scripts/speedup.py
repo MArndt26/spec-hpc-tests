@@ -6,10 +6,9 @@ def speedup(data):
     '''
     parallel speedup plot
     '''
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
+    fig, ax = plt.subplots()
 
-    for b in data:
+    for b in sorted(data):
         processors = []
         speedups = []
         ref_time = None
