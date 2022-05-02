@@ -3,6 +3,7 @@ import numpy as np
 import os
 from plot_scripts.speedup import speedup
 from plot_scripts.on_chip_traffic import on_chip_traffic
+from plot_scripts.off_chip_traffic import off_chip_traffic
 
 
 def dprint(dict):
@@ -25,7 +26,7 @@ def parse(filename):
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.S.Load::total": "shared reads",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.L2_Replacement::total": "l2 stores",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.Mem_Data::total": "l2 loads",
-        "system.cache_hierarchy.ruby_system.L2Cache_Controller.WB_Data::total": "l2 wb",
+        "system.cache_hierarchy.ruby_system.L2Cache_Controller.WB_Data::total": "l2 wbs",
         # "system.cache_hierarchy.ruby_system.L2Cache_Controller.MT.L1_GETS::total": "MT L1_GETS",
         # "system.cache_hierarchy.ruby_system.L2Cache_Controller.MT.L1_PUTX::total": "L1_PUTX",
         # "system.cache_hierarchy.ruby_system.L2Cache_Controller.ISS.L1_GETS::total": "ISS L1_GETS",
@@ -78,3 +79,5 @@ if __name__ == "__main__":
     speedup(data)  # Plot parallel speedup
 
     on_chip_traffic(data)  # Plot on-chip traffic
+
+    off_chip_traffic(data)  # Plot off-chip traffic

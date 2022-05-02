@@ -4,17 +4,17 @@ import matplotlib.ticker as ticker
 import numpy as np
 
 
-def on_chip_traffic(data):
+def off_chip_traffic(data):
     '''
-    on chip traffic plot
+    off chip traffic plot
+    TODO: this is basically the same as on-chip traffic, should generalize this code for reuse
     '''
     fig, ax = plt.subplots()
 
     processors = np.array([])
-    s_writes = np.array([])
-    p_writes = np.array([])
-    s_reads = np.array([])
-    p_reads = np.array([])
+    wbs = np.array([])
+    stores = np.array([])
+    loads = np.array([])
 
     for b in sorted(data):
         group = data[b]
@@ -23,30 +23,27 @@ def on_chip_traffic(data):
             stats = group[g]
             p = params[1][-1]
 
-            # TODO: UPDATE THIS FOR BYTES/INSTR for l1, pulling this from nowhere
-            instr = stats["simInstr"] / 64
+            instr = 1
+            # TODO: UPDATE THIS FOR BYTES/INSTR for l2 block, pulling these numbers from nowhere
+            instr = stats["simInstr"] / (64)
             processors = np.append(processors, p)
-            s_writes = np.append(s_writes, stats["shared writes"]/instr)
-            s_reads = np.append(s_reads, stats["shared reads"]/instr)
-            p_writes = np.append(p_writes, stats["private writes"]/instr)
-            p_reads = np.append(p_reads, stats["private reads"]/instr)
+            wbs = np.append(wbs, stats["l2 wbs"]/instr)
+            stores = np.append(stores, stats["l2 stores"]/instr)
+            loads = np.append(loads, stats["l2 loads"]/instr)
 
         if b != sorted(data)[-1]:
             # Add spacing
             processors = np.append(processors, "")
-            s_writes = np.append(s_writes, 0)
-            s_reads = np.append(s_reads, 0)
-            p_writes = np.append(p_writes, 0)
-            p_reads = np.append(p_reads, 0)
+            wbs = np.append(wbs, 0)
+            stores = np.append(stores, 0)
+            loads = np.append(loads, 0)
 
     width = 0.3
     x = np.arange(len(processors))  # the label locations
-    ax.bar(x, p_reads, width, label='private reads')
-    ax.bar(x, p_writes, width, label='private writes', bottom=p_reads)
-    ax.bar(x, s_reads, width,
-           label='shared reads', bottom=p_reads+p_writes)
-    ax.bar(x, s_writes, width, label='shared writes',
-           bottom=p_reads+p_writes+s_reads)
+    ax.bar(x, loads, width, label='loads')
+    ax.bar(x, stores, width, label='stores', bottom=loads)
+    ax.bar(x, wbs, width,
+           label='writebacks', bottom=loads+stores)
 
     handles, labels = ax.get_legend_handles_labels()
     ax.legend(handles[::-1], labels[::-1],
@@ -54,7 +51,7 @@ def on_chip_traffic(data):
     ax.set_xticks(x, processors)
 
     ax.set_ylabel('Traffic (accesses)')
-    ax.set_title('On-Chip Traffic')
+    ax.set_title('Off-Chip Traffic')
 
     # label the benchmarks
     # TODO: THIS IS HARDCORED TO TWO BENCHMARKS, MAYBE MAKE THIS FLEXIBLE FOR ANY NUMBER OF BENCHMARKS
@@ -74,4 +71,4 @@ def on_chip_traffic(data):
 
     fig.tight_layout()
 
-    plt.savefig('parse_out/on-chip-traffic.png')
+    plt.savefig('parse_out/off-chip-traffic.png')
