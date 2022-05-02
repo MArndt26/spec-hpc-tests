@@ -21,7 +21,7 @@ tealeaf_run:
 ifndef CORES
 	$(error CORES is not set)
 endif
-	cd TeaLeaf_OpenMP/2d; export OMP_NUM_THREADS=$(CORES) ; sudo ./tealeaf
+	cd TeaLeaf_OpenMP/2d; export OMP_NUM_THREADS=$(CORES) ; ./tealeaf
 
 cloverleaf_clean:
 	@echo "Cleaning Cloverleaf"

@@ -198,3 +198,8 @@ notes:
 cat /proc/sys/kernel/hostname
 running cache sweep with 
 cores=4
+
+- updated tea.in problem size to make it a little bigger
+  - this was because the first problem size we simulated has no affect on parallel performance (it was too small)
+  - more iterations produces data that is more interesting
+    - the current size has a upside down U speedup curve, very interesting, probably need larger problem to get better speedup results

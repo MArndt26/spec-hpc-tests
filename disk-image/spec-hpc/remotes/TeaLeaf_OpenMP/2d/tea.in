@@ -14,13 +14,12 @@ y_cells             = 4096
 
 use_cg
 use_c_kernels
-check_result
 
 eps                 = 1.0e-15
-max_iters           = 5000
+max_iters           = 1000
 
 initial_timestep    = 0.004
-end_step            = 2
+end_step            = 5
 end_time            = 100.0
 
 halo_depth          = 2

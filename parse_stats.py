@@ -65,7 +65,7 @@ if __name__ == "__main__":
         os.system("mkdir parse_out")
 
     ps = [1, 2, 4, 8]
-    benchmarks = ["cloverleaf", "cloverleaf_copy"]
+    benchmarks = ["cloverleaf", "tealeaf"]
     data = {}
 
     for b in benchmarks:

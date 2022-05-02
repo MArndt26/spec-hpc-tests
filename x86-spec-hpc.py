@@ -183,8 +183,8 @@ command = (
     + "make {}_build;".format(args.benchmark)
     + "echo 'finished building binaries';"
 
-    + "sleep 5; m5 exit;"  # switch from kvm to timing processor
     + "make {}_run CORES={};".format(args.benchmark, args.cores)
+    + "sleep 5; m5 exit;"  # switch from kvm to timing processor
 
     + "sleep 5; m5 exit;"  # dump stats
 )
