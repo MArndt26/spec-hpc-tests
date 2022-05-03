@@ -1,9 +1,9 @@
 #!/usr/bin/python3
-import numpy as np
 import os
 from plot_scripts.speedup import speedup
 from plot_scripts.on_chip_traffic import on_chip_traffic
 from plot_scripts.off_chip_traffic import off_chip_traffic
+from plot_scripts.miss_rate import miss_rate
 
 
 def dprint(dict):
@@ -64,20 +64,34 @@ if __name__ == "__main__":
         print("Creating output directory")
         os.system("mkdir parse_out")
 
-    ps = [1, 2, 4, 8]
     benchmarks = ["cloverleaf", "tealeaf"]
-    data = {}
+
+    p_data = {}  # parallel speedup data
+    ps = [1, 2, 4, 8]
+
+    # for b in benchmarks:
+    #     p_data[b] = {}
+    #     for p in ps:
+    #         name = "{}-p{}-32kB".format(b, p)
+    #         stats = parse(
+    #             "archive-remote/archive/{}-lock/stats.txt".format(name))
+    #         p_data[b][name] = stats
+
+    # speedup(p_data)  # Plot parallel speedup
+
+    # on_chip_traffic(p_data)  # Plot on-chip traffic
+
+    # off_chip_traffic(p_data)  # Plot off-chip traffic
+
+    c_data = {}  # cache sweep data
+    cs = [8, 32, 128, 512, 2048]
 
     for b in benchmarks:
-        data[b] = {}
-        for p in ps:
-            name = "{}-p{}-32kB".format(b, p)
+        c_data[b] = {}
+        for c in cs:
+            name = "{}-p4-{}kB".format(b, c)
             stats = parse(
                 "archive-remote/archive/{}-lock/stats.txt".format(name))
-            data[b][name] = stats
+            c_data[b][name] = stats
 
-    speedup(data)  # Plot parallel speedup
-
-    on_chip_traffic(data)  # Plot on-chip traffic
-
-    off_chip_traffic(data)  # Plot off-chip traffic
+    miss_rate(c_data)  # Plot cache miss rate over cache sweep

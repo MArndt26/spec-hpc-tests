@@ -203,3 +203,5 @@ cores=4
   - this was because the first problem size we simulated has no affect on parallel performance (it was too small)
   - more iterations produces data that is more interesting
     - the current size has a upside down U speedup curve, very interesting, probably need larger problem to get better speedup results
+
+//todo: start writing up readme - test by copying over to new directory
