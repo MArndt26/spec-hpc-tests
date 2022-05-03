@@ -4,6 +4,7 @@ from plot_scripts.speedup import speedup
 from plot_scripts.on_chip_traffic import on_chip_traffic
 from plot_scripts.off_chip_traffic import off_chip_traffic
 from plot_scripts.miss_rate import miss_rate
+from plot_scripts.working_set import cl_working_set, tl_working_set
 
 
 def dprint(dict):
@@ -94,4 +95,8 @@ if __name__ == "__main__":
                 "archive-remote/archive/{}-lock/stats.txt".format(name))
             c_data[b][name] = stats
 
-    miss_rate(c_data)  # Plot cache miss rate over cache sweep
+    # miss_rate(c_data)  # Plot cache miss rate over cache sweep
+
+    cl_working_set(c_data["cloverleaf"])
+
+    tl_working_set(c_data["tealeaf"])

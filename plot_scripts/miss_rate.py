@@ -33,9 +33,6 @@ def miss_rate(data):
     x = np.arange(len(caches))  # the label locations
     ax.bar(x, misses, width, label='misses')
 
-    handles, labels = ax.get_legend_handles_labels()
-    ax.legend(handles[::-1], labels[::-1],
-              bbox_to_anchor=(1.04, 0.5), loc='upper left')
     ax.set_xticks(x, caches)
     ax.yaxis.set_major_formatter(ticker.PercentFormatter())
 
