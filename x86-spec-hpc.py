@@ -101,7 +101,7 @@ parser.add_argument(
     choices=core_choices,
 )
 
-cache_choices = ["8kB", "32kB", "128kB", "512kB", "2048kB"]
+cache_choices = ["8kB", "32kB", "64kB", "128kB", "512kB", "2048kB", "4096kB"]
 
 parser.add_argument(
     "--cache-size",
@@ -130,7 +130,7 @@ cache_hierarchy = MESITwoLevelCacheHierarchy(
     l1d_assoc=4,
     l1i_size=args.cache_size,
     l1i_assoc=4,
-    l2_size="256kB",
+    l2_size="4096kB",
     l2_assoc=16,
     num_l2_banks=2,
 )
@@ -180,8 +180,8 @@ command = (
     + "make {}_build;".format(args.benchmark)
     + "echo 'finished building binaries';"
 
-    + "make {}_run CORES={};".format(args.benchmark, args.cores)
     + "sleep 5; m5 exit;"  # switch from kvm to timing processor
+    + "make {}_run CORES={};".format(args.benchmark, args.cores)
 
     + "sleep 5; m5 exit;"  # dump stats
 )
