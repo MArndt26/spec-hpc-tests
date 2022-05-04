@@ -23,7 +23,8 @@ def parse(filename):
         "system.cache_hierarchy.ruby_system.l1_controllers0.L1Dcache.m_demand_accesses": "accesses",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.Inv::total": "shared writes",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Store::total": "private writes",
-        "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Load::total": "private reads",
+        "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Load::total": "private e reads",
+        "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Load::total": "private m reads",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.S.Load::total": "shared reads",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.L2_Replacement::total": "l2 stores",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.Mem_Data::total": "l2 loads",
@@ -70,19 +71,20 @@ if __name__ == "__main__":
     p_data = {}  # parallel speedup data
     ps = [1, 2, 4, 8]
 
-    # for b in benchmarks:
-    #     p_data[b] = {}
-    #     for p in ps:
-    #         name = "{}-p{}-32kB".format(b, p)
-    #         stats = parse(
-    #             "archive-remote/archive/{}-lock/stats.txt".format(name))
-    #         p_data[b][name] = stats
+    for b in benchmarks:
+        p_data[b] = {}
+        for p in ps:
+            name = "{}-p{}-32kB".format(b, p)
+            stats = parse(
+                # "archive-remote/archive/{}-lock/stats.txt".format(name))
+                "archive-old/{}-lock/stats.txt".format(name))
+            p_data[b][name] = stats
 
-    # speedup(p_data)  # Plot parallel speedup
+    speedup(p_data)  # Plot parallel speedup
 
-    # on_chip_traffic(p_data)  # Plot on-chip traffic
+    on_chip_traffic(p_data)  # Plot on-chip traffic
 
-    # off_chip_traffic(p_data)  # Plot off-chip traffic
+    off_chip_traffic(p_data)  # Plot off-chip traffic
 
     c_data = {}  # cache sweep data
     cs = [8, 32, 128, 512, 2048]

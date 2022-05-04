@@ -1,30 +1,149 @@
 ## Setup
-1) clone gem5 repo: `git clone /home/yara/mithuna2/gem5`
+### Gem5
+Use this step if you are building on your own machine.  Make sure to install all needed dependencies described [here](https://www.gem5.org/documentation/general_docs/building)
+1) clone gem5 repo: `git clone https://gem5.googlesource.com/public/gem5`
 2) build gem5:
    1) `cd gem5`
-   2) `scons-3 USE_HDF5=0 build/X86/gem5.opt -j 16`
-3) Obtain copy of hpc2021-1.0.3.iso.xz (or newer version) from SPEC
-   1) Note: this follows [this](https://www.spec.org/hpg/hpc2021/Docs/install-guide-linux.html#mount) tutorial for installation
-4) Copy compressed file into disk-image/hpc/
-5) Decompress `xz -d hpc2021-1.0.3.iso.xz`
-6) mount to the extracted .iso `mount -t iso9660 -o ro,loop hpc2021-1.0.n.iso /mnt`
-7) change to the mount directory `cd /mnt`
-8)  `./install.sh`
-   1) you will be prompted for the install directory: enter /path/to/
-9)  Change to the top-level spec directory `cd /spec-hpc-tests/disk-image/hpc`
-10) source the env vars `. ./shrc` -> note dot-space-dot-slash-shrc
-11) unmount the .iso `sudo umount /mnt` -> note: `u`mount is not a typo for `un`mount
+   2) `scons build/X86/gem5.opt -j 16`
+      1) this command uses the following format: `scons build/{ISA}/gem5.{variant} -j {cpus}`
+      2) On the first time you build, you will be prompted with a message about `missing the gem5 style or commit message hook`.  Press enter to agree and continue the build.
+3) build m5 utility
+   1) `cd gem5/util/m5`
+   2) `scons build/x86/out/m5`
+> Note: this process will take quite a bit of time
 
-## Mounting Spec Image
-1) To mount a partition inside the disk image you need to calculate the offset of where the partition starts.
-   1) `cd spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image`
-   2) `parted spec-hpc`
-      1) `unit`
-      2) `B`
-      3) `print`
-      4) `q` to exit parted menu
-   
-The output should look like:
+### Building Disk Image
+> Note: this stage must be completed after the gem5 build above
+1) Download Packer Utility
+   1) `cd spec-hpc_tests/disk-image/`
+   2) `wget https://releases.hashicorp.com/packer/1.4.3/packer_1.4.3_linux_amd64.zip`
+   3) `unzip packer_1.4.3_linux_amd64.zip`
+   4) you now have access to the `./packer` binary
+2) Validate build image config
+   1) `./packer validate spec-hpc/spec-hpc.json`
+3) Build image 
+   1) `./packer build spec-hpc/spec-hpc.json`
+4) As a sanity check, verify the disk image size (in kB)
+   1)  `du -s --apparent-size spec-hpc/spec-hpc-image/spec-hpc`
+   2)  The `spec-hpc.json` script specifies {"image_size": "30000"} which means you should expect ~30GB for the image size
+       1)  Should you want to reduce the size of the disk image, you can change this value in the spec-hpc.json file and rebuild the image.  It is recommended that you go no lower than 10GB ({"image_size" : "10000"}) to hold the OS and have space for benchmark simulation.
+
+### Environment Config
+1) ensure that the `/proc/sys/kernel/perf_event_paranoid` variable is set to 1
+   1) This is required by the gem5 simulator to run full system simulations
+
+### Makefiles
+This section will discuss the various Makefiles in this project that are useful for running benchmarks and general debugging
+
+`spec-hpc-tests/Makefile`
+- Makefile targets:
+  - all: responsible for running the benchmark tests
+    - usage: `make benchmark={cloverleaf, tealeaf} cores={number of processors} cache={cache size}`
+  - pull_archive: download the results from our testing in a github release
+    - usage: `make pull_archive version={GitHub Release Version}`
+
+`spec-hpc-tests/disk-image/spec-hpc/Makefile`
+- Makefile targets:
+  - all: prints available options (see below)
+  - mount: mounts disk image to filesystem
+    - usage: `make mount`
+    - Note: you will need sudo permissions to do this
+  - unmount: unmounts disk image from the filesystem
+    - usage: `make unmount`
+    - Note: you will need sudo permissions to do this
+
+`spec-hpc-tests/disk-image/spec-hpc/remotes/Makefile`
+This Makefile is used by the x86-spec-hpc.py script to build and run the benchmarks inside the gem5 simulation.
+- Makefile targets:
+  - {benchmark}_build: contains commands to build the benchmark
+    - usage: `make {benchmark}_build`
+  - {benchmark}_run: contains the commands to run the benchmark
+    - usage: `make {benchmark}_run CORES={cores}`
+  - {benchmark}_cleans: cleans temp/build files of benchmark
+    - usage: `make {benchmark}_clean`
+> Note: This Makefile allows for abstraction of each individual benchmarks into one run script.  To add more of the SPEC hpc benchmarks, add the source code into remotes and fill in the necessary commands in this Makefile for building and running the benchmark from the source.
+
+
+
+### Run Tests
+Tests are conducted by using the `Makefile` in the root directory of this project.
+
+Example:
+```bash
+make benchmark=cloverleaf cores=4 cache=512kB
+```
+> See [Makefiles Section](#makefiles) for more details
+
+### Parsing Results
+After a benchmark simulation completes, a set of files will be generated: `archive/{benchmark}-p{cores}-{cache size}-lock`.  Note that the `-lock` keyword indicates that the simulation has completed and the lack of this keyword indicates the benchmark is still running.
+
+
+To generate plots for the simulation data run the following: 
+
+`./parse_stats.py`
+
+> IMPORTANT: This script expects that you have run to completion a subset of tests specified in [Required Runs](#runs-required)
+> ```python
+> for b in benchmark:
+>   for p in [1, 2, 4, 8]: #processors
+>     # run with cache size = 32kB
+>   for c in ["8kB", "32kB", "128kB", "512kB", "2048kB"]:
+>     # run with cores = 4
+> ```
+
+This script will generate the following plots in the `parse_out/` directory:
+- `speedup.png`
+  - Shows the parallel speedup achieved over the sweep of 1, 2, 4, 8 processors keeping the cache size constant
+  - This is measured from taking execution time of the simulated processor with multi-threads vs. a single thread execution
+- `cl_working_set.png`
+  - Shows the working set of the cloverleaf benchmark over a sweep of cache sizes holding the number of processors constant
+  - This is measured by dividing the cache misses / cache accesses
+- `tl_working_set.png`
+  - Shows the working set of the tealeaf benchmark over a sweep of cache sizes holding the number of processors constant
+  - This is measured by dividing the cache misses / cache accesses
+- `miss_rate.png`
+  - Shows the miss rates of the L1 cache over a sweep of cache sizes while holding the number of processors constant
+  - This is measured by dividing the cache misses / cache accesses
+- `off-chip-traffic.png`
+  - Shows the load/store requests from each processor over a sweep of cache sizes holding the processor constant
+  - This is measured by dividing the loads/stores of the `L2 cache` by the total number of instructions executed
+- `on-chip-traffic.png`
+  - Shows the reads/writes of a processor over a sweep of cache sizes holding the processor constant
+  - This is measured by dividing the loads/stores of the `L1 cache` by the total number of instructions executed
+
+### Runs Required
+> ```python
+> for b in benchmark:
+>   for p in [1, 2, 4, 8]: #processors
+>     # run with cache size = 32kB
+> 
+>     # These runs provide: 
+>     #   parallel speedup data 
+>     #   on-chip traffic data (bytes/instr)
+>     #   off_chip traffic data (bytes/instr)
+>   for c in ["8kB", "32kB", "128kB", "512kB", "2048kB"]:
+>     # run with cores = 4
+> 
+>     # These runs provide:
+>     #   benchmark working set data
+>     #   aggregate miss rate data
+> ```
+
+
+## Debugging Tips
+Over the course of this project, there were may issue that arose that weren't trivially solvable.  The following is a list of some helpful information/tips that were useful at getting the simulations to run.
+### Mounting Disk Image
+> Note: We have created a Makefile command that allows you to mount directly to the disk image that is created from this exact configuration.  Should you need to change it, this information may be useful. 
+
+To mount a partition inside the disk image you need to calculate the offset of where the partition starts.
+- `cd spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image`
+- `parted spec-hpc`
+  - `unit`
+  - `B`
+  - `print`
+  - `q` to exit parted menu
+  
+The output should look something like this:
 ```bash
 bash$ parted spec-hpc
 GNU Parted 2.3
@@ -42,103 +161,18 @@ Disk Flags:
 Number  Start     End           Size          Type     File system  Flags
 1      1048576B  31456231423B  31455182848B  primary  ext4         boot
 ```
-2) Next create a folder where you can mount the drive
-   1) `mkdir spec-mnt`
-3) mount drive to the partition given from parted
-   1) `sudo mount -o loop,offset=1048576 spec-hpc spec-mnt`
+- Next create a folder where you can mount the drive
+   - `mkdir spec-mnt`
+- mount drive to the partition given from parted
+   - `sudo mount -o loop,offset=1048576 spec-hpc spec-mnt`
 
-## Running SPEC tests
-1) cd $SPEC/config
-2) cp default.cfg test.cfg
-3) runhpc --config=test.cfg --action=build --tune=base -ranks 40 505.lbm_t
-4) runhpc --config=test.cfg -ranks 40 --size=test --noreportable --tune=base --iterations=1 505.lbm_t
-   1) This is causing errors right now //FIXME: NEED TO FIGURE OUT HOW TO FIX THIS
 
-## Notes
+References for disk mounting:
+- [check disk size](https://unix.stackexchange.com/questions/398033/how-to-see-determine-on-disk-file-size-on-linux)
+- [find partition](https://ubuntuforums.org/archive/index.php/t-1576011.html#:~:text=To%20mount%20a,img%20mount/point)
 
-- changed /proc/sys/kernel/perf_event_paranoid from 4 to 1
-
-## TODO
-- add ROI to the tests
-- figure out how to run benchmark tests
-  - run_test.sh will run the tealeaf 2d benchmark
-- create disk with benchmark tests
-  - so far I have added tealeaf 2d
-- figure out how to parse data from stats.txt (m5.stats.dump())
-
-## Building disk image
-1) modify spec-hpc.json to contain files to move to image
-```json
-   {
-      "type": "file",
-      "source": "spec-hpc/TeaLeaf/2d",
-      "destination": "/home/gem5/"
-    }
-```
-2) modify spec-hpc-install.sh to contain shell commands to build binaries for your benchmark
-3) check if valid `./packer validate spec-hpc/spec-hpc.json`
-4) build image `./packer build spec-hpc/spec-hpc.json`
-5) check size of disk image (in kB) `du -s --apparent-size spec-hpc/spec-hpc-image/spec-hpc`
-
-## Run Tests
-```bash
-# run system configuration
-./gem5/build/X86/gem5.opt x86-spec-hpc-benchmarks.py --benchmark <name>
-# view run output
-cat gem5/m5out/board.pc.com_1.device | less +G
-```
-
-## Parsing stat.txt
-- speedup
-  - simSeconds
-  - simTicks
-  - numCycles - expect to see all cores doing work
-- miss rate
-  - m_demand_misses / m_demand_accesses ?? maybe, currently there are 0's for both
-- data sharing
-  - //TODO: SHOULD THIS BE L1 OR L2?
-  - see transition states [here](https://www.gem5.org/documentation/general_docs/ruby/MESI_Two_Level/)
-  - L2Cache_Controller.MT.L1_GETS::total --> provide block to another core with S permissions
-  - L2Cache_Controller.MT.L1_PUTX::total --> provide block then invalidate
-  - L2Cache_Controller.ISS.L1_GETS::total --> another core wants same block in S state
-  - L2Cache_Controller.ISS.Mem_Data::total
-  - 
-  - L1Cache_Controller.NP.Load --> private read
-    - L1Cache_Controller.IS.Data_Exclusive `use this instead -- private read`
-    - L1Cache_Controller.IS.DataS_fromL1 `use this instead -- shared read`
-  - L1Cache_Controller.NP.Store --> private write
-  - L1Cache_Controller.S.Load --> shared read
-  - L1Cache_Controller.E.Load -> private read
-  - L1Cache_Controller.E.Store --> private write
-  - L1Cache_Controller.M.Load --> private read
-  - L1Cache_Controller.M.Store --> private write
-- off chip traffic
-  - //TODO: I DON'T THINK THIS IS REALLY 'OFF CHIP'
-  - simInsts
-  - L2Cache_Controller.L1_GETS::total --> loads
-  - L2Cache_Controller.L1_GETX::total --> stores
-  - L2Cache_Controller.Mem_Data::total
-  - L2Cache_Controller.WB_Data_clean::total --> wb
-
-## Runs Required
-- foreach benchmark in benchmarks
-  - foreach cpu in 16, 8, 4, 2, 1
-    - gives us parallel speedup
-    - can we run a serial version of this benchmark for parallelization overhead?
-    - gives us traffic from cache (bytes/instr)
-    - gives us off chip traffic (bytes/instr)
-  - for cpu is 16
-    - foreach cache size in 8, 16, 32, 64, 128, 256
-      - gives us miss rate analysis
-      - and shared lines analysis
-- *Impossible* scope
-  - foreach benchmark in benchmarks
-    - for cpu is 16
-      - foreach cache size in 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144
-        - get miss rates to determine working sets
-
-## Tmux
-useful for creating a shell that will persist when a ssh session is closed
+### Tmux
+Simulations on gem5 take long.  Really long actually.  This is a useful tool for creating a shell that will persist when a ssh session is closed over the course of your multi-day simulation run.
 
 - create new tmux window session
   - `tmux`
@@ -154,54 +188,8 @@ useful for creating a shell that will persist when a ssh session is closed
   - `tmux attach`
   - `tmux attach -t <session name>`
 
-## Mounting to drive help
-- [check disk size](https://unix.stackexchange.com/questions/398033/how-to-see-determine-on-disk-file-size-on-linux)
-- [find partition](https://ubuntuforums.org/archive/index.php/t-1576011.html#:~:text=To%20mount%20a,img%20mount/point)
-  - `sudo mount -o loop,offset=1048576 spec-hpc.img /mnt`
-- `losetup -a` to list all loop devices
-  - find all instances of loop and remove with `sudo losetup -d /dev/loop25`
-- `lsblk` to list all devices mounted
 
-## Resources
-- [spec hpc quick start](https://www.spec.org/hpg/hpc2021/Docs/quick-start.html)
+
+### Resources
+- this disk image installation was based on the [spec hpc quick start tutorial](https://www.spec.org/hpg/hpc2021/Docs/quick-start.html)
 - [m5 simulation commands](https://www.gem5.org/documentation/general_docs/m5ops/)
-
-
-## I think I may have found the bug.
-
-The last line in `/home/gem5project/spec-hpc-tests/m5out/system.pc.com_1.device` says:
-`./script.sh: line 1: /home/gem5/spec-hpc/bin/tealeaf.base.x: No such file or directory`
-
-
-## uncomment in line 178 x86-spec-hpc-benchmarks.py, the simulation runs.
-
-## Install MPICH 
-
-`wget https://www.mpich.org/static/downloads/3.4.1/mpich-3.4.1.tar.gz`
-`gunzip mpich-3.4.1.tar.gz`
-`tar xf mpich-3.4.1.tar`
-`cd mpich-3.4.1`
-`./configure --prefix=/home/<USERNAME>/mpich-install 2>&1 --with-device=ch3 | tee c.txt`
-`make 2>&1 | tee m.txt`
-`make install 2>&1 | tee mi.txt`
-`PATH=/home/<USERNAME>/mpich-install/bin:$PATH ; export PATH`
-`which mpicc`
-`which mpiexec`
-
-## perf_event_paranoid
-- Need to change `/proc/sys/kernel/perf_event_paranoid` to 1
-  - this is required by gem5 to run the simulation scripts
-
-`chmod +R a+w archive` --> please be smart with this!
-
-notes: 
-cat /proc/sys/kernel/hostname
-running cache sweep with 
-cores=4
-
-- updated tea.in problem size to make it a little bigger
-  - this was because the first problem size we simulated has no affect on parallel performance (it was too small)
-  - more iterations produces data that is more interesting
-    - the current size has a upside down U speedup curve, very interesting, probably need larger problem to get better speedup results
-
-//todo: start writing up readme - test by copying over to new directory

@@ -23,13 +23,13 @@ def on_chip_traffic(data):
             stats = group[g]
             p = params[1][-1]
 
-            # TODO: UPDATE THIS FOR BYTES/INSTR for l1, pulling this from nowhere
             instr = stats["simInstr"] / 64
             processors = np.append(processors, p)
             s_writes = np.append(s_writes, stats["shared writes"]/instr)
             s_reads = np.append(s_reads, stats["shared reads"]/instr)
             p_writes = np.append(p_writes, stats["private writes"]/instr)
-            p_reads = np.append(p_reads, stats["private reads"]/instr)
+            p_reads = np.append(
+                p_reads, (stats["private e reads"] + stats["private m reads"])/instr)
 
         if b != sorted(data)[-1]:
             # Add spacing
@@ -55,6 +55,7 @@ def on_chip_traffic(data):
 
     ax.set_ylabel('Traffic (accesses)')
     ax.set_title('On-Chip Traffic')
+    # ax.set_ylim([0, 15])
 
     # label the benchmarks
     # TODO: THIS IS HARDCORED TO TWO BENCHMARKS, MAYBE MAKE THIS FLEXIBLE FOR ANY NUMBER OF BENCHMARKS

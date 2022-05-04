@@ -23,9 +23,7 @@ def off_chip_traffic(data):
             stats = group[g]
             p = params[1][-1]
 
-            instr = 1
-            # TODO: UPDATE THIS FOR BYTES/INSTR for l2 block, pulling these numbers from nowhere
-            instr = stats["simInstr"] / (64)
+            instr = stats["simInstr"] / 64
             processors = np.append(processors, p)
             wbs = np.append(wbs, stats["l2 wbs"]/instr)
             stores = np.append(stores, stats["l2 stores"]/instr)

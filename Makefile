@@ -19,4 +19,4 @@ ifndef version
 	$(error version is not set)
 endif
 	wget https://github.com/MArndt26/spec-hpc-tests/releases/download/$(version)/archive.zip
-	unzip archive.zip -d archive-remote
+	unzip archive.zip -d archive-$(version)

@@ -28,11 +28,9 @@
 # script.  We have used this as a template and modified it to run the benchmarks
 # for SPEChpc 2021 benchmarks.
 
-# TODO: UPDATE THIS
 """
 Script to run SPEC hpc 2021 benchmarks with gem5. The script expects the
-benchmark program to run. The input is in the format
-<benchmark_prog>.<class>.x .The system is fixed with 8 CPU cores, MESI
+benchmark program to run.  The system is fixed with 8 CPU cores, MESI
 Two Level system cache and 3 GB DDR4 memory. It uses the x86 board.
 
 This script will count the total number of instructions executed
@@ -43,7 +41,12 @@ Usage:
 
 ```
 ./gem5/build/X86/gem5.opt \
-    x86-spec-hpc-benchmarks-from-src.py --command {command}
+    x86-spec-hpc.py {options}
+```
+for information on options run
+```
+./gem5/build/X86/gem5.opt \
+    x86-spec-hpc.py --help
 ```
 """
 
@@ -52,7 +55,6 @@ from gem5.components.cachehierarchies.ruby.mesi_two_level_cache_hierarchy import
 )
 import argparse
 import time
-import os
 
 import m5
 from m5.objects import Root
@@ -69,9 +71,6 @@ from gem5.isas import ISA
 from gem5.coherence_protocol import CoherenceProtocol
 from gem5.resources.resource import Resource, CustomDiskImageResource
 
-from m5.stats.gem5stats import get_simstat
-from m5.util import warn
-
 requires(
     isa_required=ISA.X86,
     coherence_protocol_required=CoherenceProtocol.MESI_TWO_LEVEL,
@@ -81,8 +80,6 @@ requires(
 parser = argparse.ArgumentParser(
     description="An example configuration script to run the npb benchmarks."
 )
-
-# The only positional argument accepted is the benchmark name in this script.
 
 benchmark_choices = ["cloverleaf", "tealeaf"]
 
