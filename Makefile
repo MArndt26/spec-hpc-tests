@@ -20,3 +20,4 @@ ifndef version
 endif
 	wget https://github.com/MArndt26/spec-hpc-tests/releases/download/$(version)/archive.zip
 	unzip archive.zip -d archive-$(version)
+	rm archive.zip

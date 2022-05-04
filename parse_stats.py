@@ -68,6 +68,8 @@ if __name__ == "__main__":
 
     benchmarks = ["cloverleaf", "tealeaf"]
 
+    base_path = "archive-v0.3/archive/"
+
     p_data = {}  # parallel speedup data
     ps = [1, 2, 4, 8]
 
@@ -76,8 +78,8 @@ if __name__ == "__main__":
         for p in ps:
             name = "{}-p{}-32kB".format(b, p)
             stats = parse(
-                # "archive-remote/archive/{}-lock/stats.txt".format(name))
-                "archive-old/{}-lock/stats.txt".format(name))
+                "{}{}-lock/stats.txt".format(base_path, name))
+            # "archive-old/{}-lock/stats.txt".format(name))
             p_data[b][name] = stats
 
     speedup(p_data)  # Plot parallel speedup
@@ -94,7 +96,7 @@ if __name__ == "__main__":
         for c in cs:
             name = "{}-p4-{}kB".format(b, c)
             stats = parse(
-                "archive-remote/archive/{}-lock/stats.txt".format(name))
+                "{}{}-lock/stats.txt".format(base_path, name))
             c_data[b][name] = stats
 
     # miss_rate(c_data)  # Plot cache miss rate over cache sweep
