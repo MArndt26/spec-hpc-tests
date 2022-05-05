@@ -4,10 +4,11 @@ import matplotlib.ticker as ticker
 import numpy as np
 
 
-def on_chip_traffic(data):
+def on_chip_traffic(data, out_file):
     '''
     on chip traffic plot
     '''
+    print("Plotting On Chip Traffic")
     fig, ax = plt.subplots()
 
     processors = np.array([])
@@ -28,8 +29,7 @@ def on_chip_traffic(data):
             s_writes = np.append(s_writes, stats["shared writes"]/instr)
             s_reads = np.append(s_reads, stats["shared reads"]/instr)
             p_writes = np.append(p_writes, stats["private writes"]/instr)
-            p_reads = np.append(
-                p_reads, (stats["private e reads"] + stats["private m reads"])/instr)
+            p_reads = np.append(p_reads, stats["private reads"]/instr)
 
         if b != sorted(data)[-1]:
             # Add spacing
@@ -53,7 +53,7 @@ def on_chip_traffic(data):
               bbox_to_anchor=(1.04, 0.5), loc='upper left')
     ax.set_xticks(x, processors)
 
-    ax.set_ylabel('Traffic (accesses)')
+    ax.set_ylabel('Traffic (bytes/instr)')
     ax.set_title('On-Chip Traffic')
     # ax.set_ylim([0, 15])
 
@@ -75,4 +75,4 @@ def on_chip_traffic(data):
 
     fig.tight_layout()
 
-    plt.savefig('parse_out/on-chip-traffic.png')
+    plt.savefig('parse_out/{}.png'.format(out_file))

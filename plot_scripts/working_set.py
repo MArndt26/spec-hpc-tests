@@ -39,6 +39,7 @@ def working_set(data, benchmark):
 
 
 def cl_working_set(data):
+    print("Plotting Cloverleaf Working Set")
     ax, fig = working_set(data, "Cloverleaf")
 
     ax.annotate('WS1',
@@ -67,6 +68,7 @@ def cl_working_set(data):
 
 
 def tl_working_set(data):
+    print("Plotting Tealeaf Working Set")
     ax, fig = working_set(data, "Tealeaf")
 
     ax.annotate('WS1',

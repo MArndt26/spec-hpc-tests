@@ -8,6 +8,7 @@ def miss_rate(data):
     '''
     miss rate over cache sweep
     '''
+    print("Plotting Miss Rate")
     fig, ax = plt.subplots()
 
     caches = np.array([])

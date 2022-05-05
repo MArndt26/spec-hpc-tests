@@ -6,6 +6,7 @@ def speedup(data):
     '''
     parallel speedup plot
     '''
+    print("Plotting Parallel Speedup")
     fig, ax = plt.subplots()
 
     for b in sorted(data):

@@ -19,33 +19,30 @@ def parse(filename):
     search = {
         "simSeconds": "simSeconds",
         "simInsts": "simInstr",
-        "system.cache_hierarchy.ruby_system.l1_controllers0.L1Dcache.m_demand_misses": "misses",
-        "system.cache_hierarchy.ruby_system.l1_controllers0.L1Dcache.m_demand_accesses": "accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers0.L1Dcache.m_demand_misses": "p0 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers1.L1Dcache.m_demand_misses": "p1 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers2.L1Dcache.m_demand_misses": "p2 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers3.L1Dcache.m_demand_misses": "p3 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers4.L1Dcache.m_demand_misses": "p4 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers5.L1Dcache.m_demand_misses": "p5 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers6.L1Dcache.m_demand_misses": "p6 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers7.L1Dcache.m_demand_misses": "p7 misses",
+        "system.cache_hierarchy.ruby_system.l1_controllers0.L1Dcache.m_demand_accesses": "p0 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers1.L1Dcache.m_demand_accesses": "p1 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers2.L1Dcache.m_demand_accesses": "p2 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers3.L1Dcache.m_demand_accesses": "p3 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers4.L1Dcache.m_demand_accesses": "p4 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers5.L1Dcache.m_demand_accesses": "p5 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers6.L1Dcache.m_demand_accesses": "p6 accesses",
+        "system.cache_hierarchy.ruby_system.l1_controllers7.L1Dcache.m_demand_accesses": "p7 accesses",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.Inv::total": "shared writes",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Store::total": "private writes",
-        "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Load::total": "private e reads",
-        "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Load::total": "private m reads",
+        "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Load::total": "e reads",
+        "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Load::total": "m reads",
         "system.cache_hierarchy.ruby_system.L1Cache_Controller.S.Load::total": "shared reads",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.L2_Replacement::total": "l2 stores",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.Mem_Data::total": "l2 loads",
         "system.cache_hierarchy.ruby_system.L2Cache_Controller.WB_Data::total": "l2 wbs",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.MT.L1_GETS::total": "MT L1_GETS",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.MT.L1_PUTX::total": "L1_PUTX",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.ISS.L1_GETS::total": "ISS L1_GETS",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.ISS.Mem_Data::total": "ISS Mem_Data",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.NP.Load::total": "NP Load",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.IS.Data_Exclusive::total": "IS Data_Exclusive",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.IS.DataS_fromL1::total": "IS DataS_fromL1",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.NP.Store::total": "NP Store",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.S.Load::total": "S Load",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Load::total": "D Load",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.E.Store::total": "E Store",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Load::total": "M Load",
-        # "system.cache_hierarchy.ruby_system.L1Cache_Controller.M.Store::total": "M Store",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.L1_GETS::total": "L1_GETS",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.L1_GETX::total": "L1_GETX",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.Mem_Data::total": "L2 Mem_Data",
-        # "system.cache_hierarchy.ruby_system.L2Cache_Controller.WB_Data_clean::total": "L2 WB_Data_clean"
     }
     with open(filename, "r") as stats:
         lines = stats.readlines()
@@ -57,6 +54,14 @@ def parse(filename):
                 # print(line)
                 # print(items)
                 results[search[items[0]]] = float(items[1])
+
+    results["misses"] = 0
+    results["accesses"] = 0
+    for i in range(0, 8):
+        results["misses"] += results["p{} misses".format(i)]
+        results["accesses"] += results["p{} accesses".format(i)]
+
+    results['private reads'] = results['e reads'] + results["m reads"]
     return results
 
 
@@ -68,7 +73,8 @@ if __name__ == "__main__":
 
     benchmarks = ["cloverleaf", "tealeaf"]
 
-    base_path = "archive-v0.3/archive/"
+    base_path = "archive-newest/"
+    print("Plotting from {}".format(base_path))
 
     p_data = {}  # parallel speedup data
     ps = [1, 2, 4, 8]
@@ -84,12 +90,15 @@ if __name__ == "__main__":
 
     speedup(p_data)  # Plot parallel speedup
 
-    on_chip_traffic(p_data)  # Plot on-chip traffic
-
     off_chip_traffic(p_data)  # Plot off-chip traffic
 
+    on_chip_traffic(p_data, "on-chip-traffic")  # Plot on-chip traffic
+
+    p_data["tealeaf"]["tealeaf-p1-32kB"]['private reads'] = p_data["tealeaf"]["tealeaf-p2-32kB"]['private reads']
+    on_chip_traffic(p_data, "on-chip-traffic-amended")  # Plot on-chip traffic
+
     c_data = {}  # cache sweep data
-    cs = [8, 32, 128, 512, 2048]
+    cs = [8, 32, 128, 512, 2048, 4096]
 
     for b in benchmarks:
         c_data[b] = {}
@@ -98,8 +107,10 @@ if __name__ == "__main__":
             stats = parse(
                 "{}{}-lock/stats.txt".format(base_path, name))
             c_data[b][name] = stats
+            # print("\n" + name)
+            # dprint(c_data[b][name])
 
-    # miss_rate(c_data)  # Plot cache miss rate over cache sweep
+    miss_rate(c_data)  # Plot cache miss rate over cache sweep
 
     cl_working_set(c_data["cloverleaf"])
 

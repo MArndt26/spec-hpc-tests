@@ -9,6 +9,7 @@ def off_chip_traffic(data):
     off chip traffic plot
     TODO: this is basically the same as on-chip traffic, should generalize this code for reuse
     '''
+    print("Plotting Off Chip Traffic")
     fig, ax = plt.subplots()
 
     processors = np.array([])
@@ -48,7 +49,7 @@ def off_chip_traffic(data):
               bbox_to_anchor=(1.04, 0.5), loc='upper left')
     ax.set_xticks(x, processors)
 
-    ax.set_ylabel('Traffic (accesses)')
+    ax.set_ylabel('Traffic (bytes/instr)')
     ax.set_title('Off-Chip Traffic')
 
     # label the benchmarks
