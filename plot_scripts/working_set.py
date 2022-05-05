@@ -43,8 +43,8 @@ def cl_working_set(data):
     ax, fig = working_set(data, "Cloverleaf")
 
     ax.annotate('WS1',
-                xy=(1, 4), xycoords='data',
-                xytext=(1.1, 10), fontsize=22, textcoords='data',
+                xy=(1, 10), xycoords='data',
+                xytext=(1.1, 15), fontsize=22, textcoords='data',
                 arrowprops=dict(
                     connectionstyle="arc3,rad=0",
                     shrinkA=0, shrinkB=10,
@@ -54,8 +54,8 @@ def cl_working_set(data):
                 )
 
     ax.annotate('WS2',
-                xy=(3, 3.6), xycoords='data',
-                xytext=(2.4, 10), fontsize=22, textcoords='data',
+                xy=(3, 6.8), xycoords='data',
+                xytext=(3, 15), fontsize=22, textcoords='data',
                 arrowprops=dict(
                     connectionstyle="arc3,rad=0",
                     shrinkA=0, shrinkB=10,
@@ -83,8 +83,8 @@ def tl_working_set(data):
                 )
 
     ax.annotate('WS2',
-                xy=(4, 9.5), xycoords='data',
-                xytext=(3.4, 20), fontsize=22, textcoords='data',
+                xy=(5, 9.5), xycoords='data',
+                xytext=(4, 20), fontsize=22, textcoords='data',
                 arrowprops=dict(
                     connectionstyle="arc3,rad=0",
                     shrinkA=0, shrinkB=10,
