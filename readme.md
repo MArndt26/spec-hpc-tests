@@ -1,4 +1,36 @@
-## Setup
+<style>
+  h1, h2, h3, h4, h5, h6 {
+    color: #3f51b5
+  }
+  blockquote {
+    border-color: #673ab7
+  }
+   kbd {
+    word-wrap: break-word;
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 3px 5px;
+    font: 11px ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+    line-height: 10px;
+    color: #24292f;
+    vertical-align: middle;
+    background-color: rgb(246, 248, 250);
+    border: solid 1px rgba(175,184,193,0.2);
+    border-bottom-color:  rgba(175,184,193,0.2);
+    border-radius: 6px;
+    box-shadow: inset 0 -1px 0 rgba(175,184,193,0.2);
+  }
+</style>
+
+
+# SPEC HPC Gem5 Benchmarking
+`authors:`
+- Mitchell Arndt: arndt20@purdue.edu
+- Abhinav Goel: geol39@purdue.edu
+  
+This project was aimed to bring the SPEC HPC benchmarks into a gem5 simulation testing environment to characterize each of the included workloads.
+
+## Project Setup
 ### Gem5
 Use this step if you are building on your own machine.  Make sure to install all needed dependencies described [here](https://www.gem5.org/documentation/general_docs/building)
 1) clone gem5 repo: `git clone https://gem5.googlesource.com/public/gem5`
@@ -153,7 +185,7 @@ Welcome to GNU Parted! Type 'help' to view a list of commands.
 Unit? [compact]? B
 (parted) print
 Model:  (file)
-Disk /home/shay/a/arndt20/ece666/spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image/spec-hpc: 31457280000B
+Disk /home/spec-hpc-tests/disk-image/spec-hpc/spec-hpc-image/spec-hpc: 31457280000B
 Sector size (logical/physical): 512B/512B
 Partition Table: msdos
 Disk Flags: 
@@ -188,8 +220,6 @@ Simulations on gem5 take long.  Really long actually.  This is a useful tool for
   - `tmux attach`
   - `tmux attach -t <session name>`
 
-
-
-### Resources
+## References
 - this disk image installation was based on the [spec hpc quick start tutorial](https://www.spec.org/hpg/hpc2021/Docs/quick-start.html)
 - [m5 simulation commands](https://www.gem5.org/documentation/general_docs/m5ops/)
