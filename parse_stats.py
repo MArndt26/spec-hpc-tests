@@ -73,7 +73,7 @@ if __name__ == "__main__":
 
     benchmarks = ["cloverleaf", "tealeaf"]
 
-    base_path = "archive-newest/"
+    base_path = "archive-v0.5/archive/"
     print("Plotting from {}".format(base_path))
 
     p_data = {}  # parallel speedup data
