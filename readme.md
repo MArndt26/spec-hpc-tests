@@ -1,28 +1,3 @@
-<style>
-  h1, h2, h3, h4, h5, h6 {
-    color: #3f51b5
-  }
-  blockquote {
-    border-color: #673ab7
-  }
-   kbd {
-    word-wrap: break-word;
-    box-sizing: border-box;
-    display: inline-block;
-    padding: 3px 5px;
-    font: 11px ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
-    line-height: 10px;
-    color: #24292f;
-    vertical-align: middle;
-    background-color: rgb(246, 248, 250);
-    border: solid 1px rgba(175,184,193,0.2);
-    border-bottom-color:  rgba(175,184,193,0.2);
-    border-radius: 6px;
-    box-shadow: inset 0 -1px 0 rgba(175,184,193,0.2);
-  }
-</style>
-
-
 # SPEC HPC Gem5 Benchmarking
 `authors:`
 - Mitchell Arndt: arndt20@purdue.edu
@@ -223,3 +198,27 @@ Simulations on gem5 take long.  Really long actually.  This is a useful tool for
 ## References
 - this disk image installation was based on the [spec hpc quick start tutorial](https://www.spec.org/hpg/hpc2021/Docs/quick-start.html)
 - [m5 simulation commands](https://www.gem5.org/documentation/general_docs/m5ops/)
+
+<style>
+  h1, h2, h3, h4, h5, h6 {
+    color: #3f51b5
+  }
+  blockquote {
+    border-color: #673ab7
+  }
+   kbd {
+    word-wrap: break-word;
+    box-sizing: border-box;
+    display: inline-block;
+    padding: 3px 5px;
+    font: 11px ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+    line-height: 10px;
+    color: #24292f;
+    vertical-align: middle;
+    background-color: rgb(246, 248, 250);
+    border: solid 1px rgba(175,184,193,0.2);
+    border-bottom-color:  rgba(175,184,193,0.2);
+    border-radius: 6px;
+    box-shadow: inset 0 -1px 0 rgba(175,184,193,0.2);
+  }
+</style>
